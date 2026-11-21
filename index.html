@@ -86,10 +86,10 @@
       }
       .dev-mini{ font-size:13.5px; color:var(--muted); text-align:right; line-height:1.5; }
       .dev-mini strong{ color:var(--ink); font-size:14.5px; }
-      .dev-bottom{ text-align:right; line-height:1.55; }
+      .dev-bottom{ text-align:center; line-height:1.55; }
       .dev-bottom strong{ color:var(--ink); font-size:14.5px; }
       .dev-bottom .dev-mail{ font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--ink-2); }
-      @media (max-width:640px){ .dev-bottom{ text-align:left; } }
+      @media (max-width:640px){ .dev-bottom{ text-align:center; } }
       @media (max-width:640px){ .head-side{ align-items:flex-start; } .dev-mini{ text-align:left; } }
 
       /* ---------- steps + quick start ---------- */
@@ -337,7 +337,7 @@
       .contact-card .who p{ margin:3px 0 0; color:var(--ink-2); font-size:14.5px; }
       .contact-card .who .mail{ font-family:"IBM Plex Mono", monospace; font-size:14px; }
       .contact-card .cta{ display:flex; flex-wrap:wrap; gap:10px; }
-      footer.site{ margin-top:36px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:13.5px; display:flex; flex-wrap:wrap; gap:6px 22px; justify-content:space-between; }
+      footer.site{ margin-top:36px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:13.5px; display:flex; flex-direction:column; flex-wrap:wrap; gap:8px 22px; justify-content:center; align-items:center; text-align:center; }
       .toast{
         position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
         background:var(--ink); color:var(--bg); font-size:14px; font-weight:600;
