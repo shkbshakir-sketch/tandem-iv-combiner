@@ -386,6 +386,29 @@
       .modal textarea{ min-height:118px; }
       .mm-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
       .mm-hint{ margin:14px 0 0; font-size:13.5px; color:var(--muted); }
+
+      /* ---------- v2.3 additions ---------- */
+      .panel-title .remove-btn{ margin-left:auto; }
+      .add-sub-row{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin-top:14px; }
+      .add-sub-row .note{ color:var(--muted); font-size:13.5px; flex:1 1 260px; }
+      .fourt-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:4px; }
+      .fourt-cell{ background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+      .fourt-cell .k{ font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+      .fourt-cell .v{ font-family:"IBM Plex Mono", monospace; font-size:22px; font-weight:600; margin-top:3px; line-height:1.15; }
+      .fourt-cell .u{ font-size:12.5px; color:var(--muted); }
+      .graph-ctl{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px 22px; margin-bottom:6px; }
+      .graph-ctl .field input[type="text"]{
+        font:inherit; font-size:14.5px; width:100%; padding:8px 10px;
+        border:1px solid var(--line-strong); border-radius:8px; background:var(--surface); color:var(--ink);
+      }
+      .graph-ctl .field input[type="number"]{ width:100px; }
+      .graph-ctl .field input[type="color"]{
+        width:64px; height:42px; padding:3px; border:1px solid var(--line-strong);
+        border-radius:8px; background:var(--surface); cursor:pointer;
+      }
+      .filt-grid{ display:flex; flex-wrap:wrap; gap:16px 26px; align-items:flex-end; }
+      .filt-result{ margin-top:14px; font-size:14.5px; display:none; }
+      .filt-result.show{ display:block; }
     </style>
   </head>
   <body>
@@ -489,6 +512,12 @@
           </div>
         </div>
 
+        <div id="extra-panels"></div>
+        <div class="add-sub-row">
+          <button class="btn" id="add-subcell" type="button" data-i18n="add_sub_btn">Add another subcell</button>
+          <span class="note" data-i18n="add_sub_note">Optional — for triple-junction and other multi-junction devices. With no extra subcell added, the two-cell result stays exactly as before. Up to 4 subcells in total.</span>
+        </div>
+
         <div class="samples">
           <span class="lbl" data-i18n="samples_label">Sample files:</span>
           <button class="btn small" id="dl-sample-iv" type="button" data-i18n="dl_sample_iv">SCAPS .iv sample</button>
@@ -565,6 +594,39 @@
         <div class="preview" id="preview" style="display:none"></div>
       </section>
 
+      <!-- ============ OPTICAL FILTER CALCULATOR ============ -->
+      <section class="block" aria-labelledby="filt-head">
+        <div class="block-head">
+          <h2 id="filt-head" data-i18n="filt_h">Optical filter calculator (estimate)</h2>
+        </div>
+        <div class="card" style="margin-top:0;">
+          <p class="sub" style="margin-top:0;" data-i18n="filt_sub">No filtered bottom-cell curve? Estimate the correction factor from the top cell instead. The estimate treats the top cell as a step absorber at its bandgap, with Beer–Lambert leakage exp(−α·d) for light above the bandgap, using standard AM1.5G photon currents. It is an estimate only — a real filtered simulation (for example in SCAPS-1D) is more accurate.</p>
+          <div class="filt-grid">
+            <div class="field">
+              <label for="filt-eg" data-i18n="filt_eg">Top-cell bandgap, Eg (eV)</label>
+              <input type="number" id="filt-eg" value="1.65" min="0.5" max="3.5" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="filt-thick" data-i18n="filt_thick">Top-cell thickness (nm)</label>
+              <input type="number" id="filt-thick" value="500" min="1" step="any" />
+            </div>
+            <div class="field">
+              <label for="filt-alpha" data-i18n="filt_alpha">Absorption coefficient α above Eg (cm⁻¹)</label>
+              <input type="number" id="filt-alpha" value="100000" min="0" step="any" />
+            </div>
+            <div class="field">
+              <label for="filt-egb" data-i18n="filt_egb">Bottom-cell bandgap (eV)</label>
+              <input type="number" id="filt-egb" value="1.12" min="0.5" max="3.5" step="0.01" />
+            </div>
+            <button class="btn primary" id="filt-calc" type="button" data-i18n="filt_btn">Estimate the factor</button>
+          </div>
+          <div class="filt-result" id="filt-result"></div>
+          <div class="actions" id="filt-actions" style="display:none;">
+            <button class="btn" id="filt-apply" type="button" data-i18n="filt_apply">Use as the spectral correction factor</button>
+          </div>
+        </div>
+      </section>
+
       <!-- ============ RESULTS ============ -->
       <section class="block" id="results" aria-labelledby="res-head">
         <div class="block-head">
@@ -606,12 +668,78 @@
         </div>
 
         <div class="card">
+          <h3 data-i18n="graph_h">Publication graph</h3>
+          <p class="sub" data-i18n="graph_sub">Style the I–V graph for a paper: font size, line width and colours, your own axis labels — then download it as SVG or as a high-resolution PNG (300 / 600 DPI, 180 mm wide).</p>
+          <div class="graph-ctl">
+            <div class="field">
+              <label for="g-font" data-i18n="g_font">Font size</label>
+              <input type="number" id="g-font" value="12" min="9" max="22" step="1" />
+            </div>
+            <div class="field">
+              <label for="g-line" data-i18n="g_line">Line width</label>
+              <input type="number" id="g-line" value="2.2" min="1" max="5" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="g-ctop" data-i18n="g_ctop">Top-cell colour</label>
+              <input type="color" id="g-ctop" value="#c06a00" />
+            </div>
+            <div class="field">
+              <label for="g-cbot" data-i18n="g_cbot">Bottom-cell colour</label>
+              <input type="color" id="g-cbot" value="#2f6db3" />
+            </div>
+            <div class="field">
+              <label for="g-ctan" data-i18n="g_ctan">Tandem colour</label>
+              <input type="color" id="g-ctan" value="#0b7a5c" />
+            </div>
+            <div class="field">
+              <label for="g-xlab" data-i18n="g_xlab">X-axis label</label>
+              <input type="text" id="g-xlab" placeholder="Voltage (V)" />
+            </div>
+            <div class="field">
+              <label for="g-ylab" data-i18n="g_ylab">Y-axis label</label>
+              <input type="text" id="g-ylab" placeholder="Current density (mA/cm²)" />
+            </div>
+            <div class="field">
+              <label for="g-format" data-i18n="g_format">Download format</label>
+              <select id="g-format">
+                <option value="svg">SVG (vector)</option>
+                <option value="png300">PNG · 300 DPI</option>
+                <option value="png600">PNG · 600 DPI</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn" id="g-dl" type="button" data-i18n="g_dl">Download graph</button>
+            <button class="btn" id="g-reset" type="button" data-i18n="g_reset">Reset style</button>
+          </div>
+        </div>
+
+        <div class="card">
           <h3 data-i18n="cmp_h">Comparison</h3>
           <p class="sub" data-i18n="cmp_sub">Each subcell on its own, and the tandem combination. At the tandem maximum power point, the voltage splits between the two subcells as shown in the last column.</p>
           <div class="table-scroll">
             <table class="compare" id="compare-table">
               <thead>
                 <tr><th data-i18n="th_device">Device</th><th class="num">Voc (V)</th><th class="num">Jsc (mA/cm²)</th><th class="num">FF (%)</th><th class="num">η (%)</th><th class="num" data-i18n="th_vmpp">V at tandem MPP (V)</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="fourt-card" style="display:none">
+          <h3 data-i18n="fourt_h">4-terminal result (mechanically stacked)</h3>
+          <p class="sub" data-i18n="fourt_sub">In a 4-terminal tandem each subcell works on its own, at its own maximum power point — the powers simply add, and no current matching is needed. Same data as the 2-terminal result above, so you can compare the two directly.</p>
+          <div class="fourt-grid" id="fourt-grid"></div>
+        </div>
+
+        <div class="card" id="rs-card" style="display:none">
+          <h3 data-i18n="rs_h">Parasitic resistances — Rs and Rsh</h3>
+          <p class="sub" data-i18n="rs_sub">Estimated from the slope of each curve: series resistance Rs = −dV/dJ near Voc, shunt resistance Rsh = −dV/dJ near Jsc. Estimates for your results section — check them against your simulator's own values when you have them.</p>
+          <div class="table-scroll">
+            <table class="compare" id="rs-table">
+              <thead>
+                <tr><th data-i18n="th_device">Device</th><th class="num" data-i18n="th_rs">Rs (Ω·cm²)</th><th class="num" data-i18n="th_rsh">Rsh (Ω·cm²)</th></tr>
               </thead>
               <tbody></tbody>
             </table>
@@ -682,7 +810,7 @@
           <span data-i18n="dev_role">Student, Department of EEE</span><br />
           <span data-i18n="dev_uni">Uttara University</span><br />
           <span class="dev-mail">2201161023@uttarauniversity.edu.bd</span> <button class="mini-copy" id="copy-addr" type="button" data-i18n="dlg_copy">Copy</button><br />
-          <span>Version 2.2 · 21 November 2026</span>
+          <span>Version 2.3 · 22 November 2026</span>
         </span>
       </footer>
     </div>
@@ -1551,6 +1679,62 @@
     }
     });
 
+    /* ================= v2.3 feature strings ================= */
+    Object.assign(I18N.en, {
+      add_sub_btn: "Add another subcell",
+      add_sub_note: "Optional — for triple-junction and other multi-junction devices. With no extra subcell added, the two-cell result stays exactly as before. Up to 4 subcells in total.",
+      subcell_n: "Subcell {n}", extra_sub: "— additional subcell, in series", remove_btn: "Remove",
+      ex_btn_sub: "Load example curve",
+      ex_hint_sub: "A demo subcell curve so you can try multi-junction combining right away. Replace it with your own data for real results.",
+      row_subcell: "Subcell {n}", ss_submpp: "Subcell {n} at MPP",
+      limit_bad_sub: "Current limited by subcell {n}. Its Jsc of {jsc} mA/cm² sets the tandem Jsc. The other subcells could deliver more current — the excess is lost to current mismatch.",
+      fourt_h: "4-terminal result (mechanically stacked)",
+      fourt_sub: "In a 4-terminal tandem each subcell works on its own, at its own maximum power point — the powers simply add, and no current matching is needed. Same data as the 2-terminal result above, so you can compare the two directly.",
+      fourt_pmax: "power", fourt_total: "Total power", fourt_eff: "4T efficiency", fourt_2t: "2T efficiency (series)", fourt_diff: "Difference (4T − 2T)",
+      rs_h: "Parasitic resistances — Rs and Rsh",
+      rs_sub: "Estimated from the slope of each curve: series resistance Rs = −dV/dJ near Voc, shunt resistance Rsh = −dV/dJ near Jsc. Estimates for your results section — check them against your simulator's own values when you have them.",
+      th_rs: "Rs (Ω·cm²)", th_rsh: "Rsh (Ω·cm²)",
+      filt_h: "Optical filter calculator (estimate)",
+      filt_sub: "No filtered bottom-cell curve? Estimate the correction factor from the top cell instead. The estimate treats the top cell as a step absorber at its bandgap, with Beer–Lambert leakage exp(−α·d) for light above the bandgap, using standard AM1.5G photon currents. It is an estimate only — a real filtered simulation (for example in SCAPS-1D) is more accurate.",
+      filt_eg: "Top-cell bandgap, Eg (eV)", filt_thick: "Top-cell thickness (nm)",
+      filt_alpha: "Absorption coefficient α above Eg (cm⁻¹)", filt_egb: "Bottom-cell bandgap (eV)",
+      filt_btn: "Estimate the factor", filt_apply: "Use as the spectral correction factor",
+      filt_result: "Estimated factor: the bottom cell keeps about {pct} % of its unfiltered current — factor {f}. This applies to a bottom-cell curve measured under the full spectrum.",
+      filt_applied: "Filter estimate applied as the spectral correction factor.",
+      graph_h: "Publication graph",
+      graph_sub: "Style the I–V graph for a paper: font size, line width and colours, your own axis labels — then download it as SVG or as a high-resolution PNG (300 / 600 DPI, 180 mm wide).",
+      g_font: "Font size", g_line: "Line width", g_ctop: "Top-cell colour", g_cbot: "Bottom-cell colour", g_ctan: "Tandem colour",
+      g_xlab: "X-axis label", g_ylab: "Y-axis label", g_format: "Download format", g_dl: "Download graph", g_reset: "Reset style",
+      toast_graph: "Graph downloaded."
+    });
+    Object.assign(I18N.bn, {
+      add_sub_btn: "আরেকটি subcell যোগ করুন",
+      add_sub_note: "Optional — triple-junction ও অন্যান্য multi-junction device-এর জন্য। Extra subcell যোগ না করলে দুই সেলের result আগের মতোই থাকবে। মোট সর্বোচ্চ ৪টি subcell।",
+      subcell_n: "Subcell {n}", extra_sub: "— অতিরিক্ত subcell, series-এ", remove_btn: "সরিয়ে দিন",
+      ex_btn_sub: "Example curve লোড করুন",
+      ex_hint_sub: "একটি demo subcell curve, যাতে এখনই multi-junction combine try করতে পারেন। আসল result-এর জন্য নিজের data বসান।",
+      row_subcell: "Subcell {n}", ss_submpp: "MPP-তে subcell {n}",
+      limit_bad_sub: "Current সীমিত করেছে subcell {n}। এর Jsc {jsc} mA/cm²-ই tandem Jsc নির্ধারণ করেছে। অন্য subcell গুলো আরও বেশি current দিতে পারত — সেই অতিরিক্ত অংশ current mismatch-এ নষ্ট হয়েছে।",
+      fourt_h: "4-terminal result (mechanically stacked)",
+      fourt_sub: "4-terminal tandem-এ প্রতিটি subcell নিজে নিজে, নিজের maximum power point-এ কাজ করে — power গুলো সরাসরি যোগ হয়, current matching লাগে না। উপরের 2-terminal result-এর একই data, তাই দুটো সরাসরি তুলনা করা যায়।",
+      fourt_pmax: "power", fourt_total: "মোট power", fourt_eff: "4T efficiency", fourt_2t: "2T efficiency (series)", fourt_diff: "পার্থক্য (4T − 2T)",
+      rs_h: "Parasitic resistance — Rs ও Rsh",
+      rs_sub: "প্রতিটি curve-এর ঢাল (slope) থেকে অনুমান করা: series resistance Rs = −dV/dJ (Voc-এর কাছে), shunt resistance Rsh = −dV/dJ (Jsc-এর কাছে)। Results section-এর জন্য estimate — simulator-এর নিজের value থাকলে মিলিয়ে দেখুন।",
+      th_rs: "Rs (Ω·cm²)", th_rsh: "Rsh (Ω·cm²)",
+      filt_h: "Optical filter calculator (estimate)",
+      filt_sub: "Filtered bottom-cell curve নেই? Top cell থেকে correction factor অনুমান করুন। এই estimate-এ top cell-কে তার bandgap-এ step absorber ধরা হয়েছে, bandgap-এর উপরের আলোর জন্য Beer–Lambert leakage exp(−α·d), আর standard AM1.5G photon current ব্যবহার করা হয়েছে। এটি শুধুই estimate — আসল filtered simulation (যেমন SCAPS-1D-তে) আরও সঠিক।",
+      filt_eg: "Top cell-এর bandgap, Eg (eV)", filt_thick: "Top cell-এর thickness (nm)",
+      filt_alpha: "Eg-এর উপরে absorption coefficient α (cm⁻¹)", filt_egb: "Bottom cell-এর bandgap (eV)",
+      filt_btn: "Factor অনুমান করুন", filt_apply: "Spectral correction factor হিসেবে ব্যবহার করুন",
+      filt_result: "অনুমান করা factor: bottom cell তার unfiltered current-এর প্রায় {pct} % পাবে — factor {f}। এটি full spectrum-এ মাপা bottom-cell curve-এর জন্য প্রযোজ্য।",
+      filt_applied: "Filter estimate spectral correction factor হিসেবে বসানো হয়েছে।",
+      graph_h: "Publication graph",
+      graph_sub: "Paper-এর জন্য I–V graph সাজান: font size, line width ও রঙ, নিজের axis label — তারপর SVG অথবা high-resolution PNG (300 / 600 DPI, 180 mm চওড়া) হিসেবে download করুন।",
+      g_font: "Font size", g_line: "Line width", g_ctop: "Top cell-এর রঙ", g_cbot: "Bottom cell-এর রঙ", g_ctan: "Tandem-এর রঙ",
+      g_xlab: "X-axis label", g_ylab: "Y-axis label", g_format: "Download format", g_dl: "Graph download করুন", g_reset: "Style reset করুন",
+      toast_graph: "Graph download হয়েছে।"
+    });
+
     /* ================= i18n engine ================= */
     /* contact-dialog strings */
     Object.assign(I18N.en, {
@@ -2026,7 +2210,7 @@
       "use strict";
       var $ = function(id){ return document.getElementById(id); };
       var DEV_MAIL = "2201161023@uttarauniversity.edu.bd";
-      var TOOL_VERSION = "2.2", TOOL_DATE = "21 November 2026";
+      var TOOL_VERSION = "2.3", TOOL_DATE = "22 November 2026";
       var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.__T = T;
 
@@ -2037,8 +2221,12 @@
         specFactor: 1, bottomRawPts: null,     // unscaled bottom points + spectral correction factor
         spectrumTop: "am15", spectrumBottom: "filtered",  // user's own statement of how each curve was measured/simulated
         measured: null, statusMeas: null,      // optional measured tandem curve + its metrics
-        show: { top:true, bottom:true, tandem:true, power:true }
+        show: { top:true, bottom:true, tandem:true, power:true },
+        extras: [],                            // v2.3: extra subcells [{data, status}] — empty = classic two-cell behaviour
+        graph: { fs: 12, lw: 2.2, cTop: "", cBot: "", cTan: "", xlab: "", ylab: "" },
+        filterFactor: null
       };
+      var EX_COLORS = ["#0e7c86", "#9c3d54"], EX_COLORS_DARK = ["#4fc3cf", "#e07a95"];
       function scalePts(pts, f){
         if (f === 1) return pts;
         return pts.map(function(p){ return { v: p.v, j: p.j * f }; });
@@ -2192,7 +2380,73 @@
       }
       function combine(){
         if (!state.top || !state.bottom) return null;
-        return combinePts(state.top.pts, state.bottom.pts, state.pin);
+        var loaded = loadedExtras();
+        if (!loaded.length) return combinePts(state.top.pts, state.bottom.pts, state.pin);
+        var list = [state.top.pts, state.bottom.pts];
+        loaded.forEach(function(x){ list.push(x.data.pts); });
+        return combineN(list, state.pin);
+      }
+      /* Series combination of N subcells — the same rule as combinePts
+         (common current grid, voltages add), generalised. With two cells
+         it reduces to exactly the combinePts calculation. */
+      function combineN(list, pin){
+        var ms = list.map(function(pts){ return curveMetrics(pts, pin); });
+        var jscT = Infinity, vocT = 0;
+        ms.forEach(function(m){ jscT = Math.min(jscT, m.jsc); vocT += m.voc; });
+        var N = 2000, curve = [], pmax = 0, vmpp = 0, jmpp = 0, vCells = list.map(function(){ return 0; });
+        for (var i = 0; i <= N; i++){
+          var j = jscT * i / N, v = 0, vs = [];
+          list.forEach(function(pts){ var vk = voltageAtJ(pts, j); vs.push(vk); v += vk; });
+          var p = v * j;
+          curve.push({ v: v, j: j, p: p });
+          if (p > pmax){ pmax = p; vmpp = v; jmpp = j; vCells = vs; }
+        }
+        return { curve: curve, voc: vocT, jsc: jscT, pmax: pmax, vmpp: vmpp, jmpp: jmpp,
+                 ff: (vocT > 0 && jscT > 0) ? (pmax / (vocT * jscT)) * 100 : 0,
+                 eff: pin > 0 ? (pmax / pin) * 100 : 0,
+                 vTopMpp: vCells[0] || 0, vBotMpp: vCells[1] || 0, vCellsMpp: vCells };
+      }
+      function loadedExtras(){
+        return state.extras.filter(function(x){ return !!x.data; });
+      }
+      /* All loaded subcells in order, with display names — used by the
+         4-terminal card, the Rs/Rsh table and the comparison table. */
+      function allCells(){
+        var out = [];
+        if (state.top) out.push({ name: T("row_top"), color: "#c06a00", d: state.top, kind: "top", n: 1 });
+        if (state.bottom) out.push({ name: T("row_bottom"), color: "#2f6db3", d: state.bottom, kind: "bottom", n: 2 });
+        state.extras.forEach(function(x, i){
+          if (x.data) out.push({ name: T("subcell_n", { n: i + 3 }), color: EX_COLORS[i % EX_COLORS.length], d: x.data, kind: "extra", n: i + 3 });
+        });
+        return out;
+      }
+      /* ---------- parasitic resistances from curve slope ----------
+         Rs = −dV/dJ near Voc (low current), Rsh = −dV/dJ near Jsc
+         (low voltage), each from a least-squares fit over a window. */
+      function linSlope(pts, x0, x1){
+        var sel = pts.filter(function(p){ return p.j >= x0 && p.j <= x1; });
+        if (sel.length < 2) return null;
+        var n = sel.length, mx = 0, my = 0, i;
+        sel.forEach(function(p){ mx += p.j; my += p.v; });
+        mx /= n; my /= n;
+        var sxy = 0, sxx = 0;
+        sel.forEach(function(p){ sxy += (p.j - mx) * (p.v - my); sxx += (p.j - mx) * (p.j - mx); });
+        if (sxx <= 0) return null;
+        return sxy / sxx;
+      }
+      function resistances(pairs){
+        if (!pairs || pairs.length < 4) return { rs: null, rsh: null };
+        var jmax = pairs[pairs.length - 1].j;
+        if (!(jmax > 0)) return { rs: null, rsh: null };
+        var sRs = linSlope(pairs, 0, jmax * 0.10);
+        var sRsh = linSlope(pairs, jmax * 0.90, jmax);
+        function ok(x){ return (x !== null && isFinite(x) && x > 0) ? x : null; }
+        return { rs: ok(sRs === null ? null : -sRs), rsh: ok(sRsh === null ? null : -sRsh) };
+      }
+      function cellPairs(pts){
+        var jsc = curveMetrics(pts, state.pin).jsc, out = [], N = 240;
+        for (var i = 0; i <= N; i++){ var j = jsc * i / N; out.push({ v: voltageAtJ(pts, j), j: j }); }
+        return out;
       }
       function exampleCurve(voc, jsc, a){
         var lines = [], steps = 40, denom = Math.exp(voc / a) - 1;
@@ -2275,6 +2529,194 @@
         if (cell === "top") state.statusTop = null; else state.statusBottom = null;
         $("panel-" + cell).classList.remove("done");
         renderStatus(cell); renderChips(cell); refresh();
+      }
+
+      /* ---------- extra subcells (multi-junction, v2.3) ---------- */
+      function extraId(i){ return "x" + i; }
+      function renderExtraStatus(i){
+        var x = state.extras[i]; if (!x) return;
+        var el = $("status-" + extraId(i)); if (!el) return;
+        var st = x.status;
+        if (!st){ el.textContent = ""; el.className = "status"; return; }
+        if (st.kind === "err"){
+          el.textContent = st.key === "err_few" ? T("err_few", { n: st.n }) : T(st.key);
+          if (st.badLine) el.textContent += " " + T("err_line", { line: st.badLine.line, text: st.badLine.text });
+          el.className = "status err"; return;
+        }
+        el.textContent = T("status_loaded", { n: st.n, src: srcText(st.src) }) + (st.flipped ? T("flipped_note") : "") + (st.blocks > 1 ? T("multi_note", { n: st.blocks }) : "");
+        el.className = "status ok";
+        var warn = "";
+        if (st.badLine) warn += "⚠ " + T("err_line", { line: st.badLine.line, text: st.badLine.text });
+        if (st.unit === "am2") warn += (warn ? " " : "") + "⚠ " + T("unit_am2");
+        else if (st.unit === "a") warn += (warn ? " " : "") + "⚠ " + T("unit_a");
+        else if (st.unitJsc > 80) warn += (warn ? " " : "") + "⚠ " + T("unit_high", { jsc: fmt(st.unitJsc, 1) });
+        if (warn){
+          var w = document.createElement("div"); w.className = "status-warn"; w.textContent = warn;
+          el.appendChild(w);
+        }
+      }
+      function renderExtraChips(i){
+        var x = state.extras[i]; if (!x) return;
+        var chips = $("chips-" + extraId(i)); if (!chips) return;
+        var d = x.data;
+        if (!d){ chips.innerHTML = '<span class="chip">' + T("no_data") + "</span>"; $("panel-" + extraId(i)).classList.remove("done"); return; }
+        chips.innerHTML =
+          '<span class="chip">Voc <b>' + fmt(d.voc, 3) + ' V</b></span>' +
+          '<span class="chip">Jsc <b>' + fmt(d.jsc, 2) + ' mA/cm²</b></span>' +
+          '<span class="chip">FF <b>' + fmt(d.ff, 1) + ' %</b></span>' +
+          '<span class="chip">' + T("chip_eta") + ' <b>' + fmt(d.eff, 2) + ' %</b></span>' +
+          '<span class="chip">Pmax <b>' + fmt(d.pmax, 2) + ' mW/cm²</b></span>' +
+          '<span class="chip">' + T("unit_word") + ' <b>' + (d.unit === "am2" ? "A/m² → mA/cm²" : d.unit === "a" ? "A/cm² → mA/cm²" : "mA/cm²") + '</b></span>';
+        $("panel-" + extraId(i)).classList.add("done");
+      }
+      function setExtra(i, parsed, src){
+        var x = state.extras[i]; if (!x) return;
+        hideResult();
+        if (parsed.errorKey){
+          x.data = null;
+          x.status = { kind: "err", key: parsed.errorKey, n: parsed.errorN || 0, badLine: parsed.badLine || null };
+          renderExtraStatus(i); renderExtraChips(i); refresh(); return;
+        }
+        var m = curveMetrics(parsed.pts, state.pin);
+        x.data = { pts: parsed.pts, voc: m.voc, jsc: m.jsc, ff: m.ff, eff: m.eff, pmax: m.pmax, flipped: parsed.flipped, unit: parsed.unit || "ma", src: src };
+        x.status = { kind: "ok", n: parsed.pts.length, src: src, flipped: parsed.flipped, blocks: parsed.blocks || 1, badLine: parsed.badLine || null, unit: parsed.unit || "ma", unitJsc: m.jsc };
+        renderExtraStatus(i); renderExtraChips(i); refresh();
+      }
+      function clearExtra(i){
+        var x = state.extras[i]; if (!x) return;
+        hideResult();
+        x.data = null; x.status = null;
+        renderExtraStatus(i); renderExtraChips(i); refresh();
+      }
+      function extraPanelHtml(i){
+        var id = extraId(i), color = EX_COLORS[i % EX_COLORS.length];
+        return '<div class="panel" id="panel-' + id + '" style="margin-top:16px;">' +
+          '<div class="panel-head">' +
+            '<div class="panel-title"><span class="dot" style="background:' + color + '"></span><h3><span id="extitle-' + id + '"></span> <span class="sub" data-i18n="extra_sub">— additional subcell, in series</span></h3>' +
+            '<button class="btn small remove-btn" id="remove-' + id + '" type="button" data-i18n="remove_btn">Remove</button></div>' +
+            '<div class="chips" id="chips-' + id + '"><span class="chip" data-i18n="no_data">No data yet</span></div>' +
+          '</div>' +
+          '<div class="tabs" role="tablist" aria-label="Subcell input method">' +
+            '<button class="tab" role="tab" aria-selected="true" data-tab="paste" data-cell="' + id + '" data-i18n="tab_paste">Paste data</button>' +
+            '<button class="tab" role="tab" aria-selected="false" data-tab="upload" data-cell="' + id + '" data-i18n="tab_upload">Upload file</button>' +
+            '<button class="tab" role="tab" aria-selected="false" data-tab="example" data-cell="' + id + '" data-i18n="tab_example">Example</button>' +
+          '</div>' +
+          '<div class="tab-body">' +
+            '<div class="tab-page active" data-page="paste" data-cell="' + id + '">' +
+              '<textarea id="ta-' + id + '" spellcheck="false" placeholder="0.00&#9;20.10&#10;0.10&#9;20.05&#10;0.20&#9;19.98&#10;…"></textarea>' +
+              '<div class="fmt" data-i18n-html="fmt_hint"></div>' +
+            '</div>' +
+            '<div class="tab-page" data-page="upload" data-cell="' + id + '">' +
+              '<div class="file-row"><input type="file" id="file-' + id + '" accept=".txt,.csv,.dat,.iv,text/plain" /></div>' +
+              '<div class="fmt" data-i18n="file_hint"></div>' +
+              '<div class="fmt" data-i18n="drop_hint"></div>' +
+            '</div>' +
+            '<div class="tab-page" data-page="example" data-cell="' + id + '">' +
+              '<button class="btn" id="ex-' + id + '" type="button" data-i18n="ex_btn_sub">Load example curve</button>' +
+              '<div class="fmt" data-i18n="ex_hint_sub"></div>' +
+            '</div>' +
+            '<div class="status" id="status-' + id + '" role="status"></div>' +
+          '</div>' +
+        '</div>';
+      }
+      function renderExtraTitles(){
+        state.extras.forEach(function(x, i){
+          var el = $("extitle-" + extraId(i));
+          if (el) el.textContent = T("subcell_n", { n: i + 3 });
+        });
+        var btn = $("add-subcell");
+        if (btn) btn.disabled = state.extras.length >= 2;
+      }
+      function addSubcell(){
+        if (state.extras.length >= 2) return;
+        var i = state.extras.length;
+        state.extras.push({ data: null, status: null });
+        var holder = document.createElement("div");
+        holder.innerHTML = extraPanelHtml(i);
+        $("extra-panels").appendChild(holder.firstChild);
+        applyStatic();
+        renderExtraTitles();
+        wireExtra(i);
+        refresh();
+      }
+      function removeSubcell(i){
+        state.extras.splice(i, 1);
+        rebuildExtraPanels();
+        hideResult();
+        refresh();
+      }
+      function rebuildExtraPanels(){
+        var wrap = $("extra-panels");
+        wrap.innerHTML = "";
+        var keep = state.extras;
+        state.extras = [];
+        keep.forEach(function(x){
+          var i = state.extras.length;
+          state.extras.push(x);
+          var holder = document.createElement("div");
+          holder.innerHTML = extraPanelHtml(i);
+          wrap.appendChild(holder.firstChild);
+          wireExtra(i);
+          renderExtraStatus(i); renderExtraChips(i);
+        });
+        applyStatic();
+        renderExtraTitles();
+      }
+      function wireExtra(i){
+        var id = extraId(i);
+        var timer = null;
+        $("ta-" + id).addEventListener("input", function(){
+          clearTimeout(timer);
+          timer = setTimeout(function(){
+            var txt = $("ta-" + id).value;
+            if (!txt.trim()){ clearExtra(i); return; }
+            setExtra(i, parseCurve(txt), { type: "paste" });
+          }, 450);
+        });
+        $("file-" + id).addEventListener("change", function(ev){
+          var f = ev.target.files && ev.target.files[0];
+          if (!f) return;
+          var reader = new FileReader();
+          reader.onload = function(){
+            var text = String(reader.result || "");
+            $("ta-" + id).value = text;
+            switchTab(id, "paste");
+            setExtra(i, parseCurve(text), { type: "file", name: f.name });
+          };
+          reader.onerror = function(){
+            state.extras[i].status = { kind: "err", key: "err_read", n: 0 };
+            renderExtraStatus(i);
+          };
+          reader.readAsText(f);
+        });
+        var panel = $("panel-" + id);
+        panel.addEventListener("dragover", function(ev){ ev.preventDefault(); panel.classList.add("drag-over"); });
+        panel.addEventListener("dragleave", function(ev){ if (!panel.contains(ev.relatedTarget)) panel.classList.remove("drag-over"); });
+        panel.addEventListener("drop", function(ev){
+          ev.preventDefault(); panel.classList.remove("drag-over");
+          var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+          if (f){
+            var reader = new FileReader();
+            reader.onload = function(){
+              var text = String(reader.result || "");
+              $("ta-" + id).value = text;
+              switchTab(id, "paste");
+              setExtra(i, parseCurve(text), { type: "file", name: f.name });
+            };
+            reader.readAsText(f);
+          }
+        });
+        panel.querySelectorAll(".tab").forEach(function(b){
+          b.addEventListener("click", function(){ switchTab(id, b.getAttribute("data-tab")); });
+        });
+        $("ex-" + id).addEventListener("click", function(){
+          var demos = [[0.95, 20.0, 0.045], [0.62, 20.5, 0.030]];
+          var d = demos[i % demos.length];
+          var txt = exampleCurve(d[0], d[1], d[2]);
+          $("ta-" + id).value = txt; switchTab(id, "paste");
+          setExtra(i, parseCurve(txt), { type: "example" });
+        });
+        $("remove-" + id).addEventListener("click", function(){ removeSubcell(i); });
       }
 
       /* ---------- optional measured tandem curve ---------- */
@@ -2438,6 +2880,9 @@
         ["top", "bottom"].forEach(function(cell){
           if (state[cell]){ state[cell].eff = curveMetrics(state[cell].pts, state.pin).eff; renderChips(cell); }
         });
+        state.extras.forEach(function(x, i){
+          if (x.data){ x.data.eff = curveMetrics(x.data.pts, state.pin).eff; renderExtraChips(i); }
+        });
         if (state.measured){ state.measured.eff = curveMetrics(state.measured.pts, state.pin).eff; renderMeasChips(); }
         refresh();
       });
@@ -2546,7 +2991,15 @@
         }
         pv.innerHTML = '<span class="pv-label">' + T("preview_h") + '</span>' +
           cellHtml(T("row_top"), "#c06a00", state.top) +
-          cellHtml(T("row_bottom"), "#2f6db3", state.bottom);
+          cellHtml(T("row_bottom"), "#2f6db3", state.bottom) +
+          state.extras.map(function(x, i){
+            return x.data ? cellHtml(T("subcell_n", { n: i + 3 }), EX_COLORS[i % EX_COLORS.length], x.data) : "";
+          }).join("");
+      }
+      function scaledAllEff(f){
+        var list = [scalePts(state.top.pts, f), scalePts(state.bottom.pts, f)];
+        loadedExtras().forEach(function(x){ list.push(scalePts(x.data.pts, f)); });
+        return (list.length > 2 ? combineN(list, state.pin) : combinePts(list[0], list[1], state.pin)).eff;
       }
       function renderSensitivity(){
         var card = $("sens-card");
@@ -2556,8 +3009,8 @@
         var rows = [
           [T("sens_pin_m"), t.pmax / (pin * 0.95) * 100],
           [T("sens_pin_p"), t.pmax / (pin * 1.05) * 100],
-          [T("sens_jsc_p"), combinePts(scalePts(state.top.pts, 1.02), scalePts(state.bottom.pts, 1.02), pin).eff],
-          [T("sens_jsc_m"), combinePts(scalePts(state.top.pts, 0.98), scalePts(state.bottom.pts, 0.98), pin).eff]
+          [T("sens_jsc_p"), scaledAllEff(1.02)],
+          [T("sens_jsc_m"), scaledAllEff(0.98)]
         ];
         $("sens-rows").innerHTML = rows.map(function(r){
           var d = r[1] - t.eff;
@@ -2584,6 +3037,67 @@
           row("Pmax (mW/cm²)", t.pmax, m.pmax, 2);
       }
 
+      /* Legend toggle buttons for extra subcells — rebuilt on each refresh
+         so they always match the loaded extras. */
+      function syncExtraLegend(){
+        var lg = document.querySelector(".legend");
+        if (!lg) return;
+        lg.querySelectorAll("button[data-extra]").forEach(function(b){ b.remove(); });
+        state.extras.forEach(function(x, i){
+          if (!x.data) return;
+          var key = "x" + i;
+          if (state.show[key] === undefined) state.show[key] = true;
+          var b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("data-extra", "1");
+          b.setAttribute("data-series", key);
+          b.setAttribute("aria-pressed", state.show[key] ? "true" : "false");
+          b.innerHTML = '<span class="sw" style="background:' + EX_COLORS[i % EX_COLORS.length] + '"></span><span>' + T("subcell_n", { n: i + 3 }) + '</span>';
+          b.addEventListener("click", function(){
+            state.show[key] = !state.show[key];
+            b.setAttribute("aria-pressed", state.show[key] ? "true" : "false");
+            drawChart();
+          });
+          lg.appendChild(b);
+        });
+      }
+
+      /* ---------- 4-terminal + Rs/Rsh cards (v2.3) ---------- */
+      function renderFourT(){
+        var card = $("fourt-card");
+        if (!state.tandem || !state.shown){ card.style.display = "none"; return; }
+        var cells = allCells();
+        if (cells.length < 2){ card.style.display = "none"; return; }
+        card.style.display = "block";
+        var pTot = 0;
+        cells.forEach(function(c){ pTot += c.d.pmax; });
+        var eff4 = state.pin > 0 ? (pTot / state.pin) * 100 : 0;
+        var html = cells.map(function(c){
+          return '<div class="fourt-cell"><div class="k"><span class="swatch" style="background:' + c.color + '"></span>' + c.name + ' ' + T("fourt_pmax") + '</div>' +
+            '<div class="v">' + fmt(c.d.pmax, 2) + '</div><div class="u">mW/cm²</div></div>';
+        }).join("");
+        html += '<div class="fourt-cell"><div class="k">' + T("fourt_total") + '</div><div class="v">' + fmt(pTot, 2) + '</div><div class="u">mW/cm²</div></div>';
+        html += '<div class="fourt-cell"><div class="k">' + T("fourt_eff") + '</div><div class="v">' + fmt(eff4, 2) + ' %</div><div class="u">' + T("fourt_2t") + ': ' + fmt(state.tandem.eff, 2) + ' %</div></div>';
+        var dd = eff4 - state.tandem.eff;
+        html += '<div class="fourt-cell"><div class="k">' + T("fourt_diff") + '</div><div class="v">' + (dd >= 0 ? "+" : "") + fmt(dd, 2) + '</div><div class="u">' + T("u_pct") + '</div></div>';
+        $("fourt-grid").innerHTML = html;
+      }
+      function renderRs(){
+        var card = $("rs-card");
+        if (!state.tandem || !state.shown){ card.style.display = "none"; return; }
+        card.style.display = "block";
+        function rrow(name, color, r){
+          return '<tr><td><span class="swatch" style="background:' + color + '"></span>' + name + '</td>' +
+            '<td class="num">' + fmt(r.rs, 2) + '</td><td class="num">' + fmt(r.rsh, 1) + '</td></tr>';
+        }
+        var html = "";
+        allCells().forEach(function(c){ html += rrow(c.name, c.color, resistances(cellPairs(c.d.pts))); });
+        html += '<tr class="tandem-row"><td><span class="swatch" style="background:#0b7a5c"></span>' + T("row_tandem") + '</td>' +
+          '<td class="num">' + fmt(resistances(state.tandem.curve).rs, 2) + '</td>' +
+          '<td class="num">' + fmt(resistances(state.tandem.curve).rsh, 1) + '</td></tr>';
+        document.querySelector("#rs-table tbody").innerHTML = html;
+      }
+
       /* ---------- results ---------- */
       function refresh(){
         state.tandem = combine();
@@ -2591,6 +3105,8 @@
         renderPreview();
         renderSensitivity();
         renderMeasCompare();
+        renderFourT();
+        renderRs();
         var res = $("results");
         if (!state.tandem || !state.shown){
           res.classList.remove("show");
@@ -2614,14 +3130,22 @@
           '<span>' + T("ss_vmpp") + ' <b>' + fmt(t.vmpp, 3) + ' V</b></span>' +
           '<span>' + T("ss_jmpp") + ' <b>' + fmt(t.jmpp, 2) + ' mA/cm²</b></span>' +
           '<span>' + T("ss_topmpp") + ' <b>' + fmt(t.vTopMpp, 3) + ' V</b></span>' +
-          '<span>' + T("ss_botmpp") + ' <b>' + fmt(t.vBotMpp, 3) + ' V</b></span>';
+          '<span>' + T("ss_botmpp") + ' <b>' + fmt(t.vBotMpp, 3) + ' V</b></span>' +
+          state.extras.map(function(x, i){
+            if (!x.data || !t.vCellsMpp) return "";
+            return '<span>' + T("ss_submpp", { n: i + 3 }) + ' <b>' + fmt(t.vCellsMpp[i + 2], 3) + ' V</b></span>';
+          }).join("");
         var note = $("limit-note");
-        var limiting = top.jsc <= bot.jsc ? "top" : "bottom";
-        var diff = Math.abs(top.jsc - bot.jsc);
+        var cellsAll = allCells();
+        var limEntry = null, maxOther = 0;
+        cellsAll.forEach(function(c){ if (!limEntry || c.d.jsc < limEntry.d.jsc) limEntry = c; });
+        cellsAll.forEach(function(c){ if (c !== limEntry) maxOther = Math.max(maxOther, c.d.jsc); });
+        var diff = limEntry ? maxOther - limEntry.d.jsc : 0;
         note.style.display = "block";
-        note.className = "limit-note" + (limiting === "bottom" ? " bottom-limit" : "");
+        note.className = "limit-note" + (limEntry && limEntry.kind === "bottom" ? " bottom-limit" : "");
         if (diff < 0.05) note.innerHTML = "<strong>" + T("limit_ok", { diff: fmt(diff, 2) }) + "</strong>";
-        else note.innerHTML = "<strong>" + T("limit_bad", { cell: T(limiting === "top" ? "cell_top" : "cell_bottom"), jsc: fmt(Math.min(top.jsc, bot.jsc), 2), diff: fmt(diff, 2) }) + "</strong>";
+        else if (limEntry.kind === "extra") note.innerHTML = "<strong>" + T("limit_bad_sub", { n: limEntry.n, jsc: fmt(limEntry.d.jsc, 2) }) + "</strong>";
+        else note.innerHTML = "<strong>" + T("limit_bad", { cell: T(limEntry.kind === "top" ? "cell_top" : "cell_bottom"), jsc: fmt(limEntry.d.jsc, 2), diff: fmt(diff, 2) }) + "</strong>";
         var tb = document.querySelector("#compare-table tbody");
         function row(name, color, m, vmppTxt, cls){
           return '<tr class="' + (cls || "") + '"><td><span class="swatch" style="background:' + color + '"></span>' + name + '</td>' +
@@ -2632,7 +3156,12 @@
         tb.innerHTML =
           row(T("row_top"), "#c06a00", top, fmt(t.vTopMpp, 3)) +
           row(T("row_bottom"), "#2f6db3", bot, fmt(t.vBotMpp, 3)) +
+          state.extras.map(function(x, i){
+            if (!x.data) return "";
+            return row(T("subcell_n", { n: i + 3 }), EX_COLORS[i % EX_COLORS.length], x.data, t.vCellsMpp ? fmt(t.vCellsMpp[i + 2], 3) : "—");
+          }).join("") +
           row(T("row_tandem"), "#0b7a5c", t, fmt(t.vmpp, 3), "tandem-row");
+        syncExtraLegend();
         drawChart();
         updateNotifyLink();
         if (window.__glUpdate) window.__glUpdate(t);
@@ -2640,11 +3169,22 @@
 
       function summaryText(){
         var t = state.tandem; if (!t) return "";
-        return "Tandem I-V Combiner result\n" +
+        var s = "Tandem I-V Combiner result\n" +
           "Top subcell:    Voc " + fmt(state.top.voc, 3) + " V, Jsc " + fmt(state.top.jsc, 2) + " mA/cm2, FF " + fmt(state.top.ff, 2) + " %, eta " + fmt(state.top.eff, 2) + " %\n" +
-          "Bottom subcell: Voc " + fmt(state.bottom.voc, 3) + " V, Jsc " + fmt(state.bottom.jsc, 2) + " mA/cm2, FF " + fmt(state.bottom.ff, 2) + " %, eta " + fmt(state.bottom.eff, 2) + " %\n" +
-          "TANDEM:         Voc " + fmt(t.voc, 3) + " V, Jsc " + fmt(t.jsc, 2) + " mA/cm2, FF " + fmt(t.ff, 2) + " %, eta " + fmt(t.eff, 2) + " %\n" +
+          "Bottom subcell: Voc " + fmt(state.bottom.voc, 3) + " V, Jsc " + fmt(state.bottom.jsc, 2) + " mA/cm2, FF " + fmt(state.bottom.ff, 2) + " %, eta " + fmt(state.bottom.eff, 2) + " %\n";
+        state.extras.forEach(function(x, i){
+          if (!x.data) return;
+          var d = x.data;
+          s += "Subcell " + (i + 3) + ":       Voc " + fmt(d.voc, 3) + " V, Jsc " + fmt(d.jsc, 2) + " mA/cm2, FF " + fmt(d.ff, 2) + " %, eta " + fmt(d.eff, 2) + " %\n";
+        });
+        s += "TANDEM:         Voc " + fmt(t.voc, 3) + " V, Jsc " + fmt(t.jsc, 2) + " mA/cm2, FF " + fmt(t.ff, 2) + " %, eta " + fmt(t.eff, 2) + " %\n" +
           "Pmax " + fmt(t.pmax, 2) + " mW/cm2 at Vmpp " + fmt(t.vmpp, 3) + " V, Jmpp " + fmt(t.jmpp, 2) + " mA/cm2 (Pin " + fmt(state.pin, 0) + " mW/cm2)";
+        var cells = allCells(), pTot = 0;
+        cells.forEach(function(c){ pTot += c.d.pmax; });
+        if (cells.length >= 2) s += "\n4-terminal (independent subcells): total Pmax " + fmt(pTot, 2) + " mW/cm2, eta " + fmt(state.pin > 0 ? pTot / state.pin * 100 : 0, 2) + " %";
+        var rt = resistances(t.curve);
+        if (rt.rs !== null || rt.rsh !== null) s += "\nTandem Rs " + fmt(rt.rs, 2) + " ohm cm2, Rsh " + fmt(rt.rsh, 1) + " ohm cm2 (from curve slope)";
+        return s;
       }
       var notifyBody = "";
       function updateNotifyLink(){
@@ -2762,6 +3302,16 @@
           "# Result: Voc " + fmt(t.voc, 3) + " V, Jsc " + fmt(t.jsc, 2) + " mA/cm2, FF " + fmt(t.ff, 2) + " %, efficiency " + fmt(t.eff, 2) + " %, Pmax " + fmt(t.pmax, 2) + " mW/cm2 at Vmpp " + fmt(t.vmpp, 3) + " V",
           "Voltage (V),Current density (mA/cm2),Power density (mW/cm2)"
         ];
+        state.extras.forEach(function(x, i){
+          if (x.data) rows.splice(rows.length - 1, 0, "# Subcell " + (i + 3) + " input: " + srcDesc(x.data.src));
+        });
+        (function(){
+          var cells = allCells(), pTot = 0;
+          cells.forEach(function(c){ pTot += c.d.pmax; });
+          var rt = resistances(t.curve);
+          rows.splice(rows.length - 1, 0, "# 4-terminal (independent subcells): total Pmax " + fmt(pTot, 2) + " mW/cm2, efficiency " + fmt(state.pin > 0 ? pTot / state.pin * 100 : 0, 2) + " %");
+          rows.splice(rows.length - 1, 0, "# Tandem Rs " + fmt(rt.rs, 2) + " ohm cm2, Rsh " + fmt(rt.rsh, 1) + " ohm cm2 (estimated from curve slope)");
+        })();
         unitConversionLines().forEach(function(u){ rows.splice(rows.length - 1, 0, "# Unit conversion: " + u.text); });
         t.curve.forEach(function(p){ rows.push(p.v.toFixed(5) + "," + p.j.toFixed(5) + "," + p.p.toFixed(5)); });
         downloadBlob("tandem-iv-curve.csv", new Blob([rows.join("\n")], { type: "text/csv" }));
@@ -2825,6 +3375,9 @@
         });
         $("ta-meas").value = ""; $("file-meas").value = "";
         clearMeasured();
+        state.extras = [];
+        $("extra-panels").innerHTML = "";
+        renderExtraTitles();
         $("pin").value = "100"; state.pin = 100; updatePinWarn();
         $("spec-factor").value = "1"; state.specFactor = 1; updateSpecWarn();
         $("spec-top").value = "am15"; state.spectrumTop = "am15";
@@ -2858,13 +3411,20 @@
       function drawChart(){
         var box = $("chart"); if (!state.tandem || !state.top || !state.bottom){ box.innerHTML = ""; return; }
         var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var gs = state.graph;
         var cTop = dark ? "#e79a3c" : "#c06a00", cBot = dark ? "#6ea8e8" : "#2f6db3",
             cTan = dark ? "#2fbf94" : "#0b7a5c", cGrid = dark ? "#26332e" : "#dde4df",
             cAxis = dark ? "#8ba298" : "#68796f", cPow = dark ? "#9db3ab" : "#7d8f86";
+        if (gs.cTop) cTop = gs.cTop;
+        if (gs.cBot) cBot = gs.cBot;
+        if (gs.cTan) cTan = gs.cTan;
+        function escSvg(t){ return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+        var axV = escSvg(gs.xlab || T("axis_v")), axJ = escSvg(gs.ylab || T("axis_j"));
         var W = 920, H = 470, L = 64, R = 64, Tp = 16, B = 46;
         var iw = W - L - R, ih = H - Tp - B;
         var xmax = state.tandem.voc * 1.06;
         var ymax = Math.max(state.top.jsc, state.bottom.jsc) * 1.12;
+        state.extras.forEach(function(x){ if (x.data) ymax = Math.max(ymax, x.data.jsc * 1.12); });
         var pmaxScale = state.tandem.pmax * 1.18 || 1;
         function X(v){ return L + (v / xmax) * iw; }
         function Y(j){ return Tp + ih - (j / ymax) * ih; }
@@ -2882,8 +3442,8 @@
         ticks(pmaxScale, 5).forEach(function(p){
           s += '<text x="' + (W - R + 8) + '" y="' + (YP(p) + 4) + '" font-size="12" fill="' + cPow + '" font-family="IBM Plex Mono, monospace">' + p.toFixed(0) + '</text>';
         });
-        s += '<text x="' + (L + iw / 2) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="13" fill="' + cAxis + '">' + T("axis_v") + '</text>';
-        s += '<text transform="rotate(-90)" x="' + (-(Tp + ih / 2)) + '" y="16" text-anchor="middle" font-size="13" fill="' + cAxis + '">' + T("axis_j") + '</text>';
+        s += '<text x="' + (L + iw / 2) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="13" fill="' + cAxis + '">' + axV + '</text>';
+        s += '<text transform="rotate(-90)" x="' + (-(Tp + ih / 2)) + '" y="16" text-anchor="middle" font-size="13" fill="' + cAxis + '">' + axJ + '</text>';
         s += '<text transform="rotate(90)" x="' + (Tp + ih / 2) + '" y="' + (-(W - 14)) + '" text-anchor="middle" font-size="13" fill="' + cPow + '">' + T("axis_p") + '</text>';
         function sampleCurve(pts, n){
           var voc = voltageAtJ(pts, 0), out = [];
@@ -2897,6 +3457,11 @@
         }
         if (state.show.bottom) s += '<path d="' + pathJ(sampleCurve(state.bottom.pts, 90)) + '" fill="none" stroke="' + cBot + '" stroke-width="2.2"/>';
         if (state.show.top) s += '<path d="' + pathJ(sampleCurve(state.top.pts, 90)) + '" fill="none" stroke="' + cTop + '" stroke-width="2.2"/>';
+        state.extras.forEach(function(x, i){
+          if (!x.data || state.show["x" + i] === false) return;
+          var col = dark ? EX_COLORS_DARK[i % EX_COLORS_DARK.length] : EX_COLORS[i % EX_COLORS.length];
+          s += '<path d="' + pathJ(sampleCurve(x.data.pts, 90)) + '" fill="none" stroke="' + col + '" stroke-width="2.2"/>';
+        });
         if (state.show.power){
           var pd = ""; state.tandem.curve.forEach(function(p, i){ pd += (i === 0 ? "M" : "L") + X(p.v).toFixed(1) + "," + YP(p.p).toFixed(1) + " "; });
           s += '<path d="' + pd + '" fill="none" stroke="' + cPow + '" stroke-width="1.8" stroke-dasharray="6 4"/>';
@@ -2911,12 +3476,115 @@
           s += '<text x="' + (mx + 10) + '" y="' + (my - 10) + '" font-size="12.5" fill="' + cTan + '" font-weight="600">' + T("mpp_word") + ' · ' + fmt(state.tandem.vmpp, 2) + ' V, ' + fmt(state.tandem.jmpp, 2) + ' mA/cm²</text>';
         }
         s += "</svg>";
+        if (gs.fs && gs.fs !== 12){
+          var fk = gs.fs / 12;
+          s = s.replace(/font-size="([0-9.]+)"/g, function(m, v){ return 'font-size="' + (parseFloat(v) * fk).toFixed(1) + '"'; });
+        }
+        if (gs.lw && gs.lw !== 2.2){
+          s = s.split('stroke-width="2.2"').join('stroke-width="' + gs.lw + '"');
+          s = s.split('stroke-width="3"').join('stroke-width="' + (gs.lw + 0.8).toFixed(1) + '"');
+        }
         box.innerHTML = s;
       }
       if (window.matchMedia){
         var mq = window.matchMedia("(prefers-color-scheme: dark)");
         if (mq.addEventListener) mq.addEventListener("change", function(){ drawChart(); });
       }
+
+      /* ---------- v2.3 wiring: extra subcells, filter calculator, graph style ---------- */
+      $("add-subcell").addEventListener("click", addSubcell);
+
+      /* Optical filter estimate. JMAX anchors: maximum AM1.5G photon
+         current (mA/cm²) for a step-function absorber of the given
+         bandgap — standard detailed-balance values, interpolated. */
+      var JMAX = [[1.0, 48.5], [1.1, 44.0], [1.2, 40.3], [1.3, 36.9], [1.4, 33.6], [1.5, 30.5],
+                  [1.6, 27.6], [1.7, 24.9], [1.8, 22.3], [1.9, 19.9], [2.0, 17.6], [2.2, 13.6],
+                  [2.4, 10.3], [2.6, 7.6], [3.0, 3.9]];
+      function jmaxAt(eg){
+        if (eg <= JMAX[0][0]) return JMAX[0][1];
+        for (var i = 1; i < JMAX.length; i++){
+          if (eg <= JMAX[i][0]){
+            var a = JMAX[i - 1], b = JMAX[i];
+            return a[1] + (b[1] - a[1]) * (eg - a[0]) / (b[0] - a[0]);
+          }
+        }
+        return JMAX[JMAX.length - 1][1];
+      }
+      $("filt-calc").addEventListener("click", function(){
+        var egT = parseFloat($("filt-eg").value), d = parseFloat($("filt-thick").value),
+            al = parseFloat($("filt-alpha").value), egB = parseFloat($("filt-egb").value);
+        if (!isFinite(egT) || !isFinite(d) || !isFinite(al) || !isFinite(egB) || d < 0 || al < 0) return;
+        var leak = Math.exp(-al * d * 1e-7);           // d in nm → cm
+        var jb = jmaxAt(egB), above = Math.min(jmaxAt(egT), jb);
+        var frac = jb > 0 ? ((jb - above) + leak * above) / jb : 0;
+        frac = Math.max(0, Math.min(1, frac));
+        state.filterFactor = frac;
+        var el = $("filt-result");
+        el.textContent = T("filt_result", { pct: fmt(frac * 100, 1), f: frac.toFixed(3) });
+        el.classList.add("show");
+        $("filt-actions").style.display = "flex";
+      });
+      $("filt-apply").addEventListener("click", function(){
+        if (state.filterFactor === null) return;
+        $("spec-factor").value = state.filterFactor.toFixed(3);
+        $("spec-factor").dispatchEvent(new Event("input", { bubbles: true }));
+        toast(T("filt_applied"));
+      });
+
+      /* Publication graph controls */
+      function bindGraph(){
+        $("g-font").addEventListener("input", function(){
+          var v = parseFloat($("g-font").value);
+          state.graph.fs = isFinite(v) ? Math.max(9, Math.min(22, v)) : 12;
+          drawChart();
+        });
+        $("g-line").addEventListener("input", function(){
+          var v = parseFloat($("g-line").value);
+          state.graph.lw = isFinite(v) ? Math.max(1, Math.min(5, v)) : 2.2;
+          drawChart();
+        });
+        [["g-ctop", "cTop"], ["g-cbot", "cBot"], ["g-ctan", "cTan"]].forEach(function(pair){
+          $(pair[0]).addEventListener("input", function(){ state.graph[pair[1]] = $(pair[0]).value; drawChart(); });
+        });
+        $("g-xlab").addEventListener("input", function(){ state.graph.xlab = $("g-xlab").value; drawChart(); });
+        $("g-ylab").addEventListener("input", function(){ state.graph.ylab = $("g-ylab").value; drawChart(); });
+        $("g-reset").addEventListener("click", function(){
+          state.graph = { fs: 12, lw: 2.2, cTop: "", cBot: "", cTan: "", xlab: "", ylab: "" };
+          $("g-font").value = "12"; $("g-line").value = "2.2";
+          $("g-ctop").value = "#c06a00"; $("g-cbot").value = "#2f6db3"; $("g-ctan").value = "#0b7a5c";
+          $("g-xlab").value = ""; $("g-ylab").value = "";
+          drawChart();
+        });
+        $("g-dl").addEventListener("click", function(){
+          var svgEl = document.querySelector("#chart svg");
+          if (!svgEl || !state.tandem){ toast(T("toast_copyfail")); return; }
+          var xml = new XMLSerializer().serializeToString(svgEl);
+          if (!/xmlns=/.test(xml)) xml = xml.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+          var mode = $("g-format").value;
+          if (mode === "svg"){
+            downloadBlob("tandem-iv-graph.svg", new Blob([xml], { type: "image/svg+xml;charset=utf-8" }));
+            toast(T("toast_graph"));
+            return;
+          }
+          var dpi = mode === "png600" ? 600 : 300;
+          var url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml;charset=utf-8" }));
+          var img = new Image();
+          img.onload = function(){
+            var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            var W = Math.round(180 / 25.4 * dpi), H = Math.round(W * 470 / 920);
+            var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+            var g = cv.getContext("2d");
+            g.fillStyle = dark ? "#0b100f" : "#ffffff"; g.fillRect(0, 0, W, H);
+            g.drawImage(img, 0, 0, W, H);
+            URL.revokeObjectURL(url);
+            if (cv.toBlob) cv.toBlob(function(b){ if (b){ downloadBlob("tandem-iv-graph-" + dpi + "dpi.png", b); toast(T("toast_graph")); } }, "image/png");
+            else toast(T("toast_copyfail"));
+          };
+          img.onerror = function(){ URL.revokeObjectURL(url); toast(T("toast_copyfail")); };
+          img.src = url;
+        });
+      }
+      bindGraph();
 
       /* ---------- language switching ---------- */
       function setLanguage(lang){
@@ -2928,6 +3596,8 @@
         applyStatic();
         renderChips("top"); renderChips("bottom");
         renderStatus("top"); renderStatus("bottom");
+        state.extras.forEach(function(x, i){ renderExtraStatus(i); renderExtraChips(i); });
+        renderExtraTitles();
         renderMeasChips(); renderMeasStatus();
         updatePinWarn(); updateSpecWarn(); renderSpecNote();
         // spin/explode labels handled by GL refresh below
