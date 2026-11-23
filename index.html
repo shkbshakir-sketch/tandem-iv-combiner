@@ -448,6 +448,12 @@
         <div class="step" id="step-3"><div class="n" data-n="3">3</div><div><h3 data-i18n="step3_t">Get the tandem result</h3><p data-i18n="step3_p">Voc, Jsc, fill factor, efficiency, the combined curve — plus a 3D view.</p></div></div>
       </div>
 
+      <div class="card" id="shared-card" style="display:none; margin-top:16px;">
+        <h3 data-i18n="shared_h">Shared result</h3>
+        <p class="sub" data-i18n="shared_sub">This link carried a finished result. The values below are exactly what the sender computed — load the same curves yourself if you want to recompute or change anything.</p>
+        <div class="substats" id="shared-body" style="margin-top:0;"></div>
+      </div>
+
       <!-- ============ INPUTS ============ -->
       <section class="block" aria-labelledby="in-head">
         <div class="block-head">
@@ -758,6 +764,134 @@
             </table>
           </div>
         </div>
+
+        <div class="card">
+          <h3 data-i18n="pub_h">Publication table export</h3>
+          <p class="sub" data-i18n="pub_sub">The comparison table above, ready for a paper: LaTeX (booktabs) to paste into a manuscript, a tab-separated copy that pastes straight into Word or Excel as a table, or a Word file download.</p>
+          <div class="actions" style="margin-top:0;">
+            <button class="btn" id="v24-latex-copy" type="button" data-i18n="latex_copy">Copy LaTeX table</button>
+            <button class="btn" id="v24-latex-dl" type="button" data-i18n="latex_dl">Download .tex</button>
+            <button class="btn" id="v24-tsv-copy" type="button" data-i18n="tsv_copy">Copy table for Word / Excel (TSV)</button>
+            <button class="btn" id="v24-word-dl" type="button" data-i18n="word_dl">Download Word table (.doc)</button>
+            <button class="btn" id="v24-latex-prev" type="button" data-i18n="latex_prev">Preview LaTeX</button>
+          </div>
+          <div class="v24-pre" id="v24-latex-pre"></div>
+        </div>
+
+        <div class="card">
+          <h3><span data-i18n="sq_h">Shockley–Queisser (SQ) limit comparison</span></h3>
+          <p class="sub" data-i18n="sq_sub">Enter the subcell bandgaps. The single-junction SQ limits are interpolated from standard detailed-balance values (AM1.5G, 300 K, approximate). The tandem SQ figure is an estimate for a current-matched pair (top cell thinned to match currents, radiative-limit voltages, fill factor 0.89) — a guide, not an exact detailed-balance run.</p>
+          <div class="v24-grid">
+            <div class="field">
+              <label for="v24-sq-egt" data-i18n="sq_egt">Top-cell bandgap (eV)</label>
+              <input type="number" id="v24-sq-egt" value="1.65" min="0.5" max="3.2" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="v24-sq-egb" data-i18n="sq_egb">Bottom-cell bandgap (eV)</label>
+              <input type="number" id="v24-sq-egb" value="1.12" min="0.5" max="3.2" step="0.01" />
+            </div>
+            <button class="btn primary" id="v24-sq-btn" type="button" data-i18n="sq_btn">Compare with SQ limit</button>
+          </div>
+          <div class="v24-out" id="v24-sq-out"></div>
+        </div>
+
+        <div class="card">
+          <h3><span data-i18n="temp_h">Temperature estimate</span><span class="est-tag" data-i18n="est_tag">Estimate only</span></h3>
+          <p class="sub" data-i18n="temp_sub">ESTIMATE ONLY — not a replacement for a SCAPS-1D run at that temperature. The 25 °C tandem result is scaled with typical perovskite/silicon tandem temperature coefficients (edit them if you have measured ones). Real behaviour — phase changes, contact effects, hysteresis — is not included.</p>
+          <div class="v24-grid">
+            <div class="field">
+              <label for="v24-temp-t" data-i18n="temp_t">Cell temperature (°C)</label>
+              <input type="number" id="v24-temp-t" value="45" min="30" max="65" step="1" />
+            </div>
+            <div class="field">
+              <label for="v24-temp-cv" data-i18n="temp_cv">Voc coefficient (%/°C)</label>
+              <input type="number" id="v24-temp-cv" value="-0.28" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="v24-temp-cj" data-i18n="temp_cj">Jsc coefficient (%/°C)</label>
+              <input type="number" id="v24-temp-cj" value="0.04" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="v24-temp-cf" data-i18n="temp_cf">FF coefficient (%/°C)</label>
+              <input type="number" id="v24-temp-cf" value="-0.12" step="0.01" />
+            </div>
+            <button class="btn primary" id="v24-temp-btn" type="button" data-i18n="temp_btn">Estimate at this temperature</button>
+          </div>
+          <div class="v24-out" id="v24-temp-out"></div>
+        </div>
+      </section>
+
+      <!-- ============ BATCH / EQE / PROJECTS (v2.4) ============ -->
+      <section class="block" aria-labelledby="adv-head">
+        <div class="block-head">
+          <h2 id="adv-head" data-i18n="adv_h">Batch, EQE &amp; saved projects</h2>
+          <span class="hint" data-i18n="adv_hint">Work with many runs at once, integrate an EQE curve, and keep your results.</span>
+        </div>
+
+        <div class="card" style="margin-top:0;">
+          <h3 data-i18n="batch_h">Batch processing — many I–V files at once</h3>
+          <p class="sub" data-i18n="batch_sub">Upload up to 20 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.</p>
+          <div class="v24-grid">
+            <div class="field">
+              <label for="v24-batch-top" data-i18n="batch_top">Top-cell files (multiple)</label>
+              <input type="file" id="v24-batch-top" multiple accept=".txt,.csv,.dat,.iv,text/plain" />
+            </div>
+            <div class="field">
+              <label for="v24-batch-bot" data-i18n="batch_bot">Bottom-cell files (multiple, or one)</label>
+              <input type="file" id="v24-batch-bot" multiple accept=".txt,.csv,.dat,.iv,text/plain" />
+            </div>
+            <button class="btn primary" id="v24-batch-btn" type="button" data-i18n="batch_btn">Run batch</button>
+          </div>
+          <div class="status" id="v24-batch-status" role="status"></div>
+          <div class="v24-out" id="v24-batch-out"></div>
+          <div class="chart-box" id="v24-batch-chart" style="margin-top:12px;"></div>
+          <div class="v24-out" id="v24-match-out"></div>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="eqe_h">EQE — integrated Jsc from an EQE curve</h3>
+          <p class="sub" data-i18n="eqe_sub">Paste or upload an EQE curve — two columns: wavelength (nm), EQE (% or 0–1). The integrated Jsc uses an embedded approximate AM1.5G photon spectrum built into this page, so treat it as a close estimate: for a paper, integrate against your measured or simulator spectrum. Filtered (bottom-cell) EQE gives the filtered Jsc the same way.</p>
+          <div class="v24-grid">
+            <div class="field">
+              <label for="v24-eqe-who" data-i18n="eqe_who">This EQE belongs to</label>
+              <select id="v24-eqe-who">
+                <option value="top" data-i18n="lg_top">Top cell</option>
+                <option value="bottom" data-i18n="lg_bottom">Bottom cell</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="v24-eqe-file" data-i18n="eqe_file">EQE file</label>
+              <input type="file" id="v24-eqe-file" accept=".txt,.csv,.dat,text/plain" />
+            </div>
+            <button class="btn primary" id="v24-eqe-btn" type="button" data-i18n="eqe_btn">Compute integrated Jsc</button>
+          </div>
+          <textarea id="v24-eqe-ta" spellcheck="false" style="margin-top:12px;" placeholder="300&#9;0.02&#10;400&#9;0.55&#10;500&#9;0.82&#10;…"></textarea>
+          <div class="v24-out" id="v24-eqe-out"></div>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="proj_h">Saved projects &amp; share code</h3>
+          <p class="sub" data-i18n="proj_sub">Save a finished tandem result here with your own name — saved in this browser on this device only, so download the CSV or copy the share code for anything you must keep. A share code carries the result values themselves: send the code to a colleague, and they paste it in the box below to see the same result. Adding #r= plus the code to the end of this page's address works too — opening such an address shows the result at the top of the page.</p>
+          <div class="v24-grid">
+            <div class="field">
+              <label for="v24-proj-name" data-i18n="proj_name">Project name</label>
+              <input type="text" id="v24-proj-name" placeholder="500 nm top cell" />
+            </div>
+            <button class="btn primary" id="v24-proj-save" type="button" data-i18n="proj_save">Save current result</button>
+            <button class="btn" id="v24-share-btn" type="button" data-i18n="share_btn">Make share code for current result</button>
+          </div>
+          <div class="share-out" id="v24-share-row" style="display:none;">
+            <input type="text" id="v24-share-out" readonly aria-label="Share code" />
+            <button class="btn small" id="v24-share-copy" type="button" data-i18n="share_copy">Copy code</button>
+          </div>
+          <div class="share-out">
+            <input type="text" id="v24-import-in" data-i18n-ph="imp_ph" placeholder="Paste a share code here" aria-label="Share code" />
+            <button class="btn small" id="v24-import-btn" type="button" data-i18n="imp_btn">Load shared code</button>
+          </div>
+          <div class="status" id="v24-proj-status" role="status"></div>
+          <div id="v24-proj-list"></div>
+          <div class="v24-out" id="v24-proj-detail"></div>
+        </div>
       </section>
 
       <!-- ============ 3D RESULT ============ -->
@@ -810,7 +944,7 @@
           <span data-i18n="dev_role">Student, Department of EEE</span><br />
           <span data-i18n="dev_uni">Uttara University</span><br />
           <span class="dev-mail">2201161023@uttarauniversity.edu.bd</span> <button class="mini-copy" id="copy-addr" type="button" data-i18n="dlg_copy">Copy</button><br />
-          <span>Version 2.3 · 22 November 2026</span>
+          <span>Version 2.4 · 23 November 2026</span>
         </span>
       </footer>
     </div>
@@ -2171,6 +2305,112 @@
       offline_note: "ほぼオフラインで動作します:読み込み後は、計算機能と 3D 表示(Three.js はページに含まれています)がインターネットなしで動作し続けます。インターネットが必要なのは Google Fonts の書体だけです — オフラインでは代わりに組み込みの代替フォントが使われるため、レイアウトが少し違って見えることがあります。"
     });
 
+    /* ================= v2.4 feature strings ================= */
+    Object.assign(I18N.en, {
+      shared_h: "Shared result",
+      shared_sub: "This link carried a finished result. The values below are exactly what the sender computed — load the same curves yourself if you want to recompute or change anything.",
+      pub_h: "Publication table export",
+      pub_sub: "The comparison table above, ready for a paper: LaTeX (booktabs) to paste into a manuscript, a tab-separated copy that pastes straight into Word or Excel as a table, or a Word file download.",
+      latex_copy: "Copy LaTeX table", latex_dl: "Download .tex", tsv_copy: "Copy table for Word / Excel (TSV)",
+      word_dl: "Download Word table (.doc)", latex_prev: "Preview LaTeX",
+      toast_latex: "LaTeX table copied.", toast_tsv: "Table copied — paste it into Word or Excel.",
+      toast_tex: "LaTeX table downloaded (.tex).", toast_word: "Word table downloaded (.doc).",
+      sq_h: "Shockley–Queisser (SQ) limit comparison",
+      sq_sub: "Enter the subcell bandgaps. The single-junction SQ limits are interpolated from standard detailed-balance values (AM1.5G, 300 K, approximate). The tandem SQ figure is an estimate for a current-matched pair (top cell thinned to match currents, radiative-limit voltages, fill factor 0.89) — a guide, not an exact detailed-balance run.",
+      sq_egt: "Top-cell bandgap (eV)", sq_egb: "Bottom-cell bandgap (eV)", sq_btn: "Compare with SQ limit",
+      sq_res1: "Single-junction SQ limit — top cell ({eg} eV): {v} % · bottom cell ({egb} eV): {vb} %",
+      sq_res2: "Estimated two-junction SQ limit for this pair: about {v} %.",
+      sq_res3: "Your tandem result {eff} % reaches {pct} % of that estimated tandem SQ limit.",
+      sq_need: "Combine a tandem result first, then compare — the SQ limits above are shown either way.",
+      est_tag: "Estimate only",
+      temp_h: "Temperature estimate",
+      temp_sub: "ESTIMATE ONLY — not a replacement for a SCAPS-1D run at that temperature. The 25 °C tandem result is scaled with typical perovskite/silicon tandem temperature coefficients (edit them if you have measured ones). Real behaviour — phase changes, contact effects, hysteresis — is not included.",
+      temp_t: "Cell temperature (°C)", temp_cv: "Voc coefficient (%/°C)", temp_cj: "Jsc coefficient (%/°C)", temp_cf: "FF coefficient (%/°C)",
+      temp_btn: "Estimate at this temperature",
+      temp_need: "Combine a tandem result first — the temperature estimate scales that 25 °C result.",
+      temp_res: "Estimate at {t} °C (from the 25 °C result): Voc {voc} V · Jsc {jsc} mA/cm² · FF {ff} % · η {eff} %",
+      adv_h: "Batch, EQE & saved projects", adv_hint: "Work with many runs at once, integrate an EQE curve, and keep your results.",
+      batch_h: "Batch processing — many I–V files at once",
+      batch_sub: "Upload up to 20 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.",
+      batch_top: "Top-cell files (multiple)", batch_bot: "Bottom-cell files (multiple, or one)", batch_btn: "Run batch",
+      batch_none: "Choose at least one top-cell file and one bottom-cell file first.",
+      batch_many: "Too many files — {n} chosen, the limit is 20 in total. Nothing was run.",
+      batch_done: "Batch finished: {ok} pair(s) combined, {bad} file(s) could not be read.",
+      batch_pair: "Pair", th_topj: "Top Jsc", th_botj: "Bottom Jsc", th_mismatch: "Mismatch",
+      match_h: "Current matching — from the batch above",
+      match_best_eff: "Highest efficiency: {name} — η {eff} %, mismatch {mm} mA/cm².",
+      match_best_match: "Best current matching: {name} — mismatch only {mm} mA/cm², η {eff} %.",
+      match_note: "In a thickness sweep, the best row is usually where the two subcell currents cross. A smaller mismatch wastes less current; the highest-efficiency row is the one to take into the tandem.",
+      eqe_h: "EQE — integrated Jsc from an EQE curve",
+      eqe_sub: "Paste or upload an EQE curve — two columns: wavelength (nm), EQE (% or 0–1). The integrated Jsc uses an embedded approximate AM1.5G photon spectrum built into this page, so treat it as a close estimate: for a paper, integrate against your measured or simulator spectrum. Filtered (bottom-cell) EQE gives the filtered Jsc the same way.",
+      eqe_who: "This EQE belongs to", eqe_file: "EQE file", eqe_btn: "Compute integrated Jsc",
+      eqe_res: "Integrated Jsc ({who}) ≈ {j} mA/cm² — integrated from {a} to {b} nm against the embedded approximate AM1.5G photon spectrum. Estimate only.",
+      eqe_err: "No usable EQE points found. Use two columns: wavelength in nm (about 280–1400) and EQE as % or 0–1, at least 3 points.",
+      proj_h: "Saved projects & share code",
+      proj_sub: "Save a finished tandem result here with your own name — saved in this browser on this device only, so download the CSV or copy the share code for anything you must keep. A share code carries the result values themselves: send the code to a colleague, and they paste it in the box below to see the same result. Adding #r= plus the code to the end of this page's address works too — opening such an address shows the result at the top of the page.",
+      proj_name: "Project name", proj_save: "Save current result",
+      share_btn: "Make share code for current result", share_copy: "Copy code",
+      imp_btn: "Load shared code", imp_err: "That code could not be read — check that the whole code was pasted.",
+      toast_link: "Share code copied.", toast_saved: "Project saved in this browser.",
+      proj_need: "Combine a tandem result first, then save or share it.",
+      proj_none: "No saved projects yet — combine a result and save it here.",
+      proj_load: "Show", proj_del: "Delete", proj_link: "Code",
+      proj_saved_on: "Saved {d}", proj_nostore: "This browser blocked local saving, so projects are kept only until this page is closed.",
+      shared_from: "Shared / saved result"
+    });
+    Object.assign(I18N.bn, {
+      shared_h: "শেয়ার করা result",
+      shared_sub: "এই link-এ একটি তৈরি result এসেছে। নিচের মানগুলো পাঠানো ব্যক্তি ঠিক যেভাবে হিসাব করেছেন সেটাই — নিজে recompute বা বদলাতে চাইলে একই curve গুলো লোড করুন।",
+      pub_h: "Publication table export",
+      pub_sub: "উপরের comparison table, paper-এর জন্য তৈরি আকারে: manuscript-এ paste করার LaTeX (booktabs), Word বা Excel-এ সরাসরি table হিসেবে paste হওয়া tab-separated copy, অথবা Word file download।",
+      latex_copy: "LaTeX table copy করুন", latex_dl: ".tex download", tsv_copy: "Word / Excel-এর জন্য table copy (TSV)",
+      word_dl: "Word table download (.doc)", latex_prev: "LaTeX preview",
+      toast_latex: "LaTeX table copy হয়েছে।", toast_tsv: "Table copy হয়েছে — Word বা Excel-এ paste করুন।",
+      toast_tex: "LaTeX table download হয়েছে (.tex)।", toast_word: "Word table download হয়েছে (.doc)।",
+      sq_h: "Shockley–Queisser (SQ) limit তুলনা",
+      sq_sub: "দুই subcell-এর bandgap লিখুন। Single-junction SQ limit standard detailed-balance মান থেকে interpolate করা (AM1.5G, 300 K, আনুমানিক)। Tandem SQ মানটি current-matched pair-এর estimate (current মেলাতে top cell পাতলা ধরা, radiative-limit voltage, fill factor 0.89) — guide হিসেবে নিন, exact detailed-balance run নয়।",
+      sq_egt: "Top-cell bandgap (eV)", sq_egb: "Bottom-cell bandgap (eV)", sq_btn: "SQ limit-এর সাথে তুলনা করুন",
+      sq_res1: "Single-junction SQ limit — top cell ({eg} eV): {v} % · bottom cell ({egb} eV): {vb} %",
+      sq_res2: "এই pair-এর আনুমানিক two-junction SQ limit: প্রায় {v} %।",
+      sq_res3: "আপনার tandem result {eff} % এই আনুমানিক tandem SQ limit-এর {pct} % পর্যন্ত পৌঁছেছে।",
+      sq_need: "আগে একটি tandem result combine করুন, তারপর তুলনা করুন — SQ limit গুলো যেভাবেই হোক দেখানো হয়েছে।",
+      est_tag: "শুধু estimate",
+      temp_h: "তাপমাত্রার estimate",
+      temp_sub: "শুধুমাত্র ESTIMATE — ওই তাপমাত্রায় SCAPS-1D run-এর বিকল্প নয়। 25 °C tandem result-কে সাধারণ perovskite/silicon tandem temperature coefficient দিয়ে scale করা হয়েছে (নিজের মাপা coefficient থাকলে বদলে দিন)। আসল আচরণ — phase change, contact effect, hysteresis — এতে নেই।",
+      temp_t: "Cell-এর তাপমাত্রা (°C)", temp_cv: "Voc coefficient (%/°C)", temp_cj: "Jsc coefficient (%/°C)", temp_cf: "FF coefficient (%/°C)",
+      temp_btn: "এই তাপমাত্রায় estimate করুন",
+      temp_need: "আগে একটি tandem result combine করুন — temperature estimate ওই 25 °C result-কেই scale করে।",
+      temp_res: "{t} °C-তে estimate (25 °C result থেকে): Voc {voc} V · Jsc {jsc} mA/cm² · FF {ff} % · η {eff} %",
+      adv_h: "Batch, EQE ও saved project", adv_hint: "একসাথে অনেক run নিয়ে কাজ করুন, EQE curve integrate করুন, আর result গুলো রেখে দিন।",
+      batch_h: "Batch processing — একসাথে অনেক I–V file",
+      batch_sub: "মোট সর্বোচ্চ ২০টি file upload করুন — যেমন SCAPS-1D batch-এর top-cell run গুলো (thickness sweep) আর bottom-cell file। File গুলো filename-এর order-এ pair করা হয়; একপাশে একটি file থাকলে সেটি অন্যপাশের সব file-এর সাথে ব্যবহার হয়। প্রতিটি pair main tool-এর ঠিক একই হিসাবে combine করা হয়।",
+      batch_top: "Top-cell file (একাধিক)", batch_bot: "Bottom-cell file (একাধিক, বা একটি)", batch_btn: "Batch চালান",
+      batch_none: "আগে অন্তত একটি top-cell file ও একটি bottom-cell file বেছে নিন।",
+      batch_many: "File বেশি হয়ে গেছে — {n}টি বেছে নিয়েছেন, limit মোট ২০টি। কিছুই চালানো হয়নি।",
+      batch_done: "Batch শেষ: {ok}টি pair combine হয়েছে, {bad}টি file পড়া যায়নি।",
+      batch_pair: "Pair", th_topj: "Top Jsc", th_botj: "Bottom Jsc", th_mismatch: "Mismatch",
+      match_h: "Current matching — উপরের batch থেকে",
+      match_best_eff: "সর্বোচ্চ efficiency: {name} — η {eff} %, mismatch {mm} mA/cm²।",
+      match_best_match: "সবচেয়ে ভালো current matching: {name} — mismatch মাত্র {mm} mA/cm², η {eff} %।",
+      match_note: "Thickness sweep-এ সেরা row সাধারণত সেখানেই হয় যেখানে দুই subcell-এর current কাছাকাছি আসে। Mismatch যত কম, current নষ্ট তত কম; সর্বোচ্চ efficiency-র row-টাই tandem-এর জন্য নেওয়ার মতো।",
+      eqe_h: "EQE — EQE curve থেকে integrated Jsc",
+      eqe_sub: "EQE curve paste বা upload করুন — দুটি column: wavelength (nm), EQE (% বা 0–1)। Integrated Jsc এই page-এ বসানো আনুমানিক AM1.5G photon spectrum দিয়ে হিসাব করা, তাই close estimate হিসেবে নিন: paper-এর জন্য নিজের মাপা বা simulator spectrum দিয়ে integrate করুন। Filtered (bottom-cell) EQE দিলে একইভাবে filtered Jsc পাবেন।",
+      eqe_who: "এই EQE কোন সেলের", eqe_file: "EQE file", eqe_btn: "Integrated Jsc হিসাব করুন",
+      eqe_res: "Integrated Jsc ({who}) ≈ {j} mA/cm² — বসানো আনুমানিক AM1.5G photon spectrum-এর বিপরীতে {a} থেকে {b} nm পর্যন্ত integrate করা। শুধু estimate।",
+      eqe_err: "ব্যবহারযোগ্য EQE point পাওয়া যায়নি। দুটি column দিন: wavelength nm-এ (প্রায় 280–1400) আর EQE % বা 0–1 হিসেবে, অন্তত ৩টি point।",
+      proj_h: "Saved project ও share code",
+      proj_sub: "তৈরি tandem result নিজের নামে এখানে save করুন — শুধু এই browser-এ, এই device-এই থাকে, তাই যা অবশ্যই রাখতে হবে তার CSV download করুন বা share code copy করুন। Share code-এ result-এর মানগুলোই থাকে: code-টি সহকর্মীকে পাঠান, তিনি নিচের box-এ paste করলেই একই result দেখতে পাবেন। এই page-এর address-এর শেষে #r= আর code যোগ করলেও চলে — এমন address খুললে page-এর উপরে result দেখা যায়।",
+      proj_name: "Project-এর নাম", proj_save: "বর্তমান result save করুন",
+      share_btn: "বর্তমান result-এর share code বানান", share_copy: "Code copy করুন",
+      imp_btn: "Shared code লোড করুন", imp_err: "Code-টি পড়া যায়নি — পুরো code paste হয়েছে কিনা দেখুন।",
+      toast_link: "Share code copy হয়েছে।", toast_saved: "Project এই browser-এ save হয়েছে।",
+      proj_need: "আগে একটি tandem result combine করুন, তারপর save বা share করুন।",
+      proj_none: "এখনো কোনো saved project নেই — একটি result combine করে এখানে save করুন।",
+      proj_load: "দেখুন", proj_del: "মুছুন", proj_link: "Code",
+      proj_saved_on: "Save হয়েছে {d}", proj_nostore: "এই browser local save block করেছে, তাই project গুলো শুধু এই page খোলা থাকা পর্যন্ত থাকবে।",
+      shared_from: "শেয়ার করা / save করা result"
+    });
+
     var LANG = "en";
     function T(key, params){
       var dict = I18N[LANG] || I18N.en;
@@ -2198,6 +2438,36 @@
       #results.show{ animation:rise .45s ease both; }
       @keyframes rise{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
       .tile .v{ font-variant-numeric:tabular-nums; }
+      html{ scroll-behavior:smooth; }
+      .v24-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px 22px; align-items:end; }
+      .v24-out{ margin-top:14px; font-size:14.5px; display:none; }
+      .v24-out.show{ display:block; }
+      .v24-out table{ margin-top:8px; }
+      .v24-pre{
+        margin-top:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+        padding:12px 14px; font-family:"IBM Plex Mono", monospace; font-size:12.5px; line-height:1.55;
+        white-space:pre-wrap; word-break:break-word; max-height:260px; overflow:auto; display:none;
+      }
+      .v24-pre.show{ display:block; }
+      .est-tag{
+        display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+        color:var(--top); background:var(--top-soft); border:1px solid var(--line);
+        padding:3px 9px; border-radius:999px; vertical-align:middle; margin-left:8px;
+      }
+      html[dir="rtl"] .est-tag{ margin-left:0; margin-right:8px; }
+      .proj-item{
+        display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:space-between;
+        padding:10px 0; border-bottom:1px solid var(--line); font-size:14.5px;
+      }
+      .proj-item:last-child{ border-bottom:0; }
+      .proj-item .meta{ color:var(--muted); font-size:13px; }
+      .proj-item .acts{ display:flex; gap:8px; flex-wrap:wrap; }
+      tr.best-row td{ font-weight:700; background:var(--accent-soft); }
+      .share-out{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+      .share-out input{
+        flex:1 1 260px; font:inherit; font-family:"IBM Plex Mono", monospace; font-size:12.5px;
+        padding:9px 11px; border:1px solid var(--line-strong); border-radius:8px; background:var(--surface-2); color:var(--ink);
+      }
       @media (prefers-reduced-motion: reduce){
         #results.show{ animation:none; }
         .btn:active{ transform:none; }
@@ -2210,7 +2480,7 @@
       "use strict";
       var $ = function(id){ return document.getElementById(id); };
       var DEV_MAIL = "2201161023@uttarauniversity.edu.bd";
-      var TOOL_VERSION = "2.3", TOOL_DATE = "22 November 2026";
+      var TOOL_VERSION = "2.4", TOOL_DATE = "23 November 2026";
       var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.__T = T;
 
@@ -3585,6 +3855,444 @@
         });
       }
       bindGraph();
+
+      /* ================= v2.4: publication export, SQ limit, temperature,
+         batch + current matching, EQE, saved projects & share links =====
+         None of this touches the combine engine above: batch pairs are
+         combined with the same combinePts(), and every other tool only
+         reads state.tandem / state.top / state.bottom. */
+      function escHtml(s){
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      function interpTable(tab, x){
+        if (x <= tab[0][0]) return tab[0][1];
+        for (var i = 1; i < tab.length; i++){
+          if (x <= tab[i][0]){
+            var a = tab[i - 1], b = tab[i];
+            return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
+          }
+        }
+        return tab[tab.length - 1][1];
+      }
+
+      /* ---------- publication table export ---------- */
+      function pubRows(){
+        var t = state.tandem; if (!t) return null;
+        var rows = [
+          [T("row_top"), fmt(state.top.voc, 3), fmt(state.top.jsc, 2), fmt(state.top.ff, 2), fmt(state.top.eff, 2), fmt(t.vTopMpp, 3)],
+          [T("row_bottom"), fmt(state.bottom.voc, 3), fmt(state.bottom.jsc, 2), fmt(state.bottom.ff, 2), fmt(state.bottom.eff, 2), fmt(t.vBotMpp, 3)]
+        ];
+        state.extras.forEach(function(x, i){
+          if (!x.data) return;
+          rows.push([T("subcell_n", { n: i + 3 }), fmt(x.data.voc, 3), fmt(x.data.jsc, 2), fmt(x.data.ff, 2), fmt(x.data.eff, 2),
+                     t.vCellsMpp ? fmt(t.vCellsMpp[i + 2], 3) : "—"]);
+        });
+        rows.push([T("row_tandem"), fmt(t.voc, 3), fmt(t.jsc, 2), fmt(t.ff, 2), fmt(t.eff, 2), fmt(t.vmpp, 3)]);
+        return rows;
+      }
+      var PUB_HEAD = ["Device", "Voc (V)", "Jsc (mA/cm\\textsuperscript{2})", "FF (%)", "\\eta (%)", "V at tandem MPP (V)"];
+      var PUB_HEAD_PLAIN = ["Device", "Voc (V)", "Jsc (mA/cm²)", "FF (%)", "η (%)", "V at tandem MPP (V)"];
+      function latexTable(){
+        var rows = pubRows(); if (!rows) return "";
+        var s = "% Tandem I-V Combiner v" + TOOL_VERSION + " — " + todayText() + ", Pin = " + fmt(state.pin, 0) + " mW/cm2\n" +
+          "\\begin{table}[htbp]\n\\centering\n" +
+          "\\caption{Tandem solar cell performance (two-terminal series combination).}\n" +
+          "\\label{tab:tandem-iv}\n\\begin{tabular}{lccccc}\n\\toprule\n" +
+          PUB_HEAD.join(" & ") + " \\\\\n\\midrule\n";
+        rows.forEach(function(r, i){
+          var cells = r.slice();
+          if (i === rows.length - 1) cells = cells.map(function(c){ return "\\textbf{" + c + "}"; });
+          s += cells.join(" & ") + " \\\\\n";
+        });
+        s += "\\bottomrule\n\\end{tabular}\n\\end{table}\n";
+        return s;
+      }
+      function tsvTable(){
+        var rows = pubRows(); if (!rows) return "";
+        var out = [PUB_HEAD_PLAIN.join("\t")];
+        rows.forEach(function(r){ out.push(r.join("\t")); });
+        return out.join("\n");
+      }
+      function wordTableHtml(){
+        var rows = pubRows(); if (!rows) return "";
+        var s = "<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:word\">" +
+          "<head><meta charset=\"utf-8\"><title>Tandem result table</title></head><body>" +
+          "<p>Tandem solar cell performance — Tandem I-V Combiner v" + TOOL_VERSION + ", " + todayText() +
+          ", Pin = " + fmt(state.pin, 0) + " mW/cm², two-terminal series combination.</p>" +
+          "<table border=\"1\" cellspacing=\"0\" cellpadding=\"6\"><tr>" +
+          PUB_HEAD_PLAIN.map(function(h){ return "<th>" + escHtml(h) + "</th>"; }).join("") + "</tr>";
+        rows.forEach(function(r, i){
+          s += "<tr>" + r.map(function(c){ return i === rows.length - 1 ? "<td><b>" + escHtml(c) + "</b></td>" : "<td>" + escHtml(c) + "</td>"; }).join("") + "</tr>";
+        });
+        return s + "</table></body></html>";
+      }
+      $("v24-latex-copy").addEventListener("click", function(){
+        var s = latexTable(); if (!s){ toast(T("proj_need")); return; }
+        copyText(s, "toast_latex");
+      });
+      $("v24-latex-dl").addEventListener("click", function(){
+        var s = latexTable(); if (!s){ toast(T("proj_need")); return; }
+        downloadBlob("tandem-table.tex", new Blob([s], { type: "text/plain" }));
+        toast(T("toast_tex"));
+      });
+      $("v24-tsv-copy").addEventListener("click", function(){
+        var s = tsvTable(); if (!s){ toast(T("proj_need")); return; }
+        copyText(s, "toast_tsv");
+      });
+      $("v24-word-dl").addEventListener("click", function(){
+        var s = wordTableHtml(); if (!s){ toast(T("proj_need")); return; }
+        downloadBlob("tandem-table.doc", new Blob(["\ufeff" + s], { type: "application/msword" }));
+        toast(T("toast_word"));
+      });
+      $("v24-latex-prev").addEventListener("click", function(){
+        var pre = $("v24-latex-pre"), s = latexTable();
+        if (!s){ toast(T("proj_need")); return; }
+        pre.textContent = s;
+        pre.classList.toggle("show");
+      });
+
+      /* ---------- SQ limit ---------- */
+      var SQE = [[0.7, 17.5], [0.8, 21.0], [0.9, 24.8], [1.0, 28.3], [1.1, 30.9], [1.2, 32.4],
+                 [1.3, 33.3], [1.34, 33.7], [1.4, 33.5], [1.5, 32.6], [1.6, 31.2], [1.7, 29.6],
+                 [1.8, 27.9], [1.9, 26.1], [2.0, 24.4], [2.2, 21.0], [2.4, 18.0], [2.6, 15.3], [2.8, 12.9], [3.0, 10.8]];
+      function sqSingle(eg){ return interpTable(SQE, eg); }
+      function sqTandemEst(egT, egB){
+        /* Current-matched estimate: top thinned so both subcells deliver
+           jmaxAt(egB)/2; radiative-limit voltages Eg − ~0.3 V; FF 0.89. */
+        var jm = jmaxAt(egB) / 2;
+        var v = Math.max(0.1, egT - 0.30) + Math.max(0.1, egB - 0.28);
+        return jm * v * 0.89;
+      }
+      $("v24-sq-btn").addEventListener("click", function(){
+        var egT = parseFloat($("v24-sq-egt").value), egB = parseFloat($("v24-sq-egb").value);
+        var out = $("v24-sq-out");
+        if (!isFinite(egT) || !isFinite(egB) || egT <= 0 || egB <= 0){ out.classList.remove("show"); return; }
+        var sqT = sqSingle(egT), sqB = sqSingle(egB), sqTan = sqTandemEst(egT, egB);
+        var html = "<div>" + escHtml(T("sq_res1", { eg: fmt(egT, 2), v: fmt(sqT, 1), egb: fmt(egB, 2), vb: fmt(sqB, 1) })) + "</div>" +
+          "<div style=\"margin-top:6px;\">" + escHtml(T("sq_res2", { v: fmt(sqTan, 1) })) + "</div>";
+        if (state.tandem && state.shown && sqTan > 0){
+          html += "<div style=\"margin-top:6px;\"><strong>" +
+            escHtml(T("sq_res3", { eff: fmt(state.tandem.eff, 2), pct: fmt(state.tandem.eff / sqTan * 100, 1) })) + "</strong></div>";
+        } else {
+          html += "<div style=\"margin-top:6px;\">" + escHtml(T("sq_need")) + "</div>";
+        }
+        out.innerHTML = html;
+        out.classList.add("show");
+      });
+
+      /* ---------- temperature estimate ---------- */
+      function tempAt(tC, cv, cj, cf){
+        var t = state.tandem, d = tC - 25;
+        var voc = t.voc * (1 + cv * d / 100), jsc = t.jsc * (1 + cj * d / 100), ff = t.ff * (1 + cf * d / 100);
+        var eff = state.pin > 0 ? (voc * jsc * ff / 100) / state.pin * 100 : 0;
+        return { voc: voc, jsc: jsc, ff: ff, eff: eff };
+      }
+      $("v24-temp-btn").addEventListener("click", function(){
+        var out = $("v24-temp-out");
+        if (!state.tandem || !state.shown){ out.innerHTML = escHtml(T("temp_need")); out.classList.add("show"); return; }
+        var tC = parseFloat($("v24-temp-t").value), cv = parseFloat($("v24-temp-cv").value),
+            cj = parseFloat($("v24-temp-cj").value), cf = parseFloat($("v24-temp-cf").value);
+        if (!isFinite(tC)) tC = 45;
+        tC = Math.max(30, Math.min(65, tC));
+        if (!isFinite(cv)) cv = -0.28; if (!isFinite(cj)) cj = 0.04; if (!isFinite(cf)) cf = -0.12;
+        var r = tempAt(tC, cv, cj, cf);
+        var html = "<div><strong>" + escHtml(T("temp_res", { t: fmt(tC, 0), voc: fmt(r.voc, 3), jsc: fmt(r.jsc, 2), ff: fmt(r.ff, 2), eff: fmt(r.eff, 2) })) + "</strong></div>" +
+          "<div class=\"table-scroll\"><table class=\"compare\"><thead><tr><th>T (°C)</th><th class=\"num\">Voc (V)</th><th class=\"num\">Jsc (mA/cm²)</th><th class=\"num\">FF (%)</th><th class=\"num\">η (%)</th></tr></thead><tbody>";
+        for (var T2 = 25; T2 <= 65; T2 += 5){
+          var q = tempAt(T2, cv, cj, cf);
+          html += "<tr" + (T2 === Math.round(tC / 5) * 5 ? " class=\"best-row\"" : "") + "><td class=\"num\">" + T2 + "</td>" +
+            "<td class=\"num\">" + fmt(q.voc, 3) + "</td><td class=\"num\">" + fmt(q.jsc, 2) + "</td>" +
+            "<td class=\"num\">" + fmt(q.ff, 2) + "</td><td class=\"num\">" + fmt(q.eff, 2) + "</td></tr>";
+        }
+        out.innerHTML = html + "</tbody></table></div>";
+        out.classList.add("show");
+      });
+
+      /* ---------- batch processing + current matching ---------- */
+      var batchResults = [];
+      function readFilesText(files, done){
+        var out = new Array(files.length), left = files.length;
+        if (!left){ done(out); return; }
+        files.forEach(function(f, i){
+          var r = new FileReader();
+          r.onload = function(){ out[i] = { name: f.name, text: String(r.result || "") }; if (--left === 0) done(out); };
+          r.onerror = function(){ out[i] = { name: f.name, text: "" }; if (--left === 0) done(out); };
+          r.readAsText(f);
+        });
+      }
+      function thickLabel(name){
+        var m = /(\d+(?:\.\d+)?)\s*nm/i.exec(name || "");
+        return m ? m[1] + " nm" : name;
+      }
+      function runBatch(){
+        var tf = Array.prototype.slice.call($("v24-batch-top").files || []);
+        var bf = Array.prototype.slice.call($("v24-batch-bot").files || []);
+        var st = $("v24-batch-status");
+        st.className = "status";
+        if (!tf.length || !bf.length){ st.textContent = T("batch_none"); st.classList.add("err"); return; }
+        if (tf.length + bf.length > 20){ st.textContent = T("batch_many", { n: tf.length + bf.length }); st.classList.add("err"); return; }
+        var btn = $("v24-batch-btn"); btn.disabled = true;
+        readFilesText(tf, function(tops){
+          readFilesText(bf, function(bots){
+            btn.disabled = false;
+            tops.sort(function(a, b){ return a.name < b.name ? -1 : 1; });
+            bots.sort(function(a, b){ return a.name < b.name ? -1 : 1; });
+            var np = (tops.length === 1 || bots.length === 1) ? Math.max(tops.length, bots.length) : Math.min(tops.length, bots.length);
+            batchResults = [];
+            var bad = 0;
+            for (var i = 0; i < np; i++){
+              var tf2 = tops[tops.length === 1 ? 0 : i], bf2 = bots[bots.length === 1 ? 0 : i];
+              var pt = parseCurve(tf2.text), pb = parseCurve(bf2.text);
+              if (!pt.pts || !pb.pts){ bad++; continue; }
+              var tm = curveMetrics(pt.pts, state.pin), bm = curveMetrics(pb.pts, state.pin);
+              var tan = combinePts(pt.pts, pb.pts, state.pin);
+              batchResults.push({ label: thickLabel(tf2.name), topName: tf2.name, botName: bf2.name,
+                topJsc: tm.jsc, botJsc: bm.jsc, mismatch: Math.abs(tm.jsc - bm.jsc), tan: tan });
+            }
+            st.textContent = T("batch_done", { ok: batchResults.length, bad: bad });
+            st.classList.add(batchResults.length ? "ok" : "err");
+            renderBatch();
+          });
+        });
+      }
+      function renderBatch(){
+        var out = $("v24-batch-out"), chart = $("v24-batch-chart"), mout = $("v24-match-out");
+        if (!batchResults.length){ out.classList.remove("show"); chart.innerHTML = ""; mout.classList.remove("show"); return; }
+        var bestEff = batchResults[0], bestMatch = batchResults[0];
+        batchResults.forEach(function(r){
+          if (r.tan.eff > bestEff.tan.eff) bestEff = r;
+          if (r.mismatch < bestMatch.mismatch) bestMatch = r;
+        });
+        var html = "<div class=\"table-scroll\"><table class=\"compare\"><thead><tr><th>" + escHtml(T("batch_pair")) + "</th>" +
+          "<th class=\"num\">" + escHtml(T("th_topj")) + " (mA/cm²)</th><th class=\"num\">" + escHtml(T("th_botj")) + " (mA/cm²)</th>" +
+          "<th class=\"num\">" + escHtml(T("th_mismatch")) + " (mA/cm²)</th><th class=\"num\">Voc (V)</th><th class=\"num\">Jsc (mA/cm²)</th><th class=\"num\">FF (%)</th><th class=\"num\">η (%)</th></tr></thead><tbody>";
+        batchResults.forEach(function(r){
+          html += "<tr" + (r === bestEff ? " class=\"best-row\"" : "") + "><td>" + escHtml(r.label) + "</td>" +
+            "<td class=\"num\">" + fmt(r.topJsc, 2) + "</td><td class=\"num\">" + fmt(r.botJsc, 2) + "</td>" +
+            "<td class=\"num\">" + fmt(r.mismatch, 2) + "</td><td class=\"num\">" + fmt(r.tan.voc, 3) + "</td>" +
+            "<td class=\"num\">" + fmt(r.tan.jsc, 2) + "</td><td class=\"num\">" + fmt(r.tan.ff, 2) + "</td>" +
+            "<td class=\"num\">" + fmt(r.tan.eff, 2) + "</td></tr>";
+        });
+        out.innerHTML = html + "</tbody></table></div>";
+        out.classList.add("show");
+        /* efficiency bar chart */
+        var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var W = 920, H = 240, L = 54, B = 34, Tp = 14, iw = W - L - 14, ih = H - Tp - B;
+        var maxE = 0; batchResults.forEach(function(r){ maxE = Math.max(maxE, r.tan.eff); });
+        maxE = maxE * 1.15 || 1;
+        var bw = iw / batchResults.length;
+        var s = "<svg viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Batch efficiency chart\">";
+        for (var g = 0; g <= 4; g++){
+          var gv = maxE * g / 4, gy = Tp + ih - (gv / maxE) * ih;
+          s += "<line x1=\"" + L + "\" y1=\"" + gy + "\" x2=\"" + (W - 14) + "\" y2=\"" + gy + "\" stroke=\"" + (dark ? "#26332e" : "#dde4df") + "\"/>" +
+            "<text x=\"" + (L - 8) + "\" y=\"" + (gy + 4) + "\" text-anchor=\"end\" font-size=\"12\" fill=\"" + (dark ? "#8ba298" : "#68796f") + "\" font-family=\"IBM Plex Mono, monospace\">" + gv.toFixed(0) + "</text>";
+        }
+        batchResults.forEach(function(r, i){
+          var bh = (r.tan.eff / maxE) * ih, bx = L + i * bw + bw * 0.18, by = Tp + ih - bh;
+          var col = r === bestEff ? (dark ? "#2fbf94" : "#0b7a5c") : (dark ? "#6ea8e8" : "#2f6db3");
+          s += "<rect x=\"" + bx.toFixed(1) + "\" y=\"" + by.toFixed(1) + "\" width=\"" + (bw * 0.64).toFixed(1) + "\" height=\"" + bh.toFixed(1) + "\" fill=\"" + col + "\" rx=\"3\"/>" +
+            "<text x=\"" + (bx + bw * 0.32).toFixed(1) + "\" y=\"" + (by - 6) + "\" text-anchor=\"middle\" font-size=\"12\" fill=\"" + (dark ? "#e9f0ec" : "#15211d") + "\" font-family=\"IBM Plex Mono, monospace\">" + fmt(r.tan.eff, 1) + "</text>" +
+            "<text x=\"" + (bx + bw * 0.32).toFixed(1) + "\" y=\"" + (Tp + ih + 20) + "\" text-anchor=\"middle\" font-size=\"11\" fill=\"" + (dark ? "#8ba298" : "#68796f") + "\">" + escHtml(r.label) + "</text>";
+        });
+        s += "<text x=\"" + L + "\" y=\"12\" font-size=\"12\" fill=\"" + (dark ? "#8ba298" : "#68796f") + "\">η (%)</text></svg>";
+        chart.innerHTML = s;
+        mout.innerHTML = "<h3 style=\"margin:16px 0 6px; font-size:16.5px;\">" + escHtml(T("match_h")) + "</h3>" +
+          "<div>" + escHtml(T("match_best_eff", { name: bestEff.label, eff: fmt(bestEff.tan.eff, 2), mm: fmt(bestEff.mismatch, 2) })) + "</div>" +
+          "<div style=\"margin-top:4px;\">" + escHtml(T("match_best_match", { name: bestMatch.label, mm: fmt(bestMatch.mismatch, 2), eff: fmt(bestMatch.tan.eff, 2) })) + "</div>" +
+          "<div style=\"margin-top:4px; color:var(--muted);\">" + escHtml(T("match_note")) + "</div>";
+        mout.classList.add("show");
+      }
+      $("v24-batch-btn").addEventListener("click", runBatch);
+
+      /* ---------- EQE integrated Jsc ----------
+         Embedded approximate AM1.5G photon-current spectral density:
+         mA/cm² per nm at EQE = 1. Trapezoid integral of this table to
+         1107 nm (silicon) is ≈ 42 mA/cm², close to the standard ~43.5 —
+         labelled an estimate in the UI. */
+      var PH = [[300, 0.018], [350, 0.038], [400, 0.055], [450, 0.068], [500, 0.074], [550, 0.075],
+                [600, 0.073], [650, 0.069], [700, 0.064], [750, 0.059], [800, 0.054], [850, 0.049],
+                [900, 0.044], [950, 0.038], [1000, 0.034], [1050, 0.030], [1100, 0.026], [1150, 0.022],
+                [1200, 0.019], [1250, 0.016], [1300, 0.013]];
+      function parseEQE(text){
+        var pts = [];
+        String(text).split(/\r?\n/).forEach(function(line){
+          var toks = line.trim().split(/[\s,;]+/).filter(function(x){ return x.length > 0; });
+          if (toks.length < 2) return;
+          for (var k = 0; k < toks.length; k++) if (!isNumTok(toks[k])) return;
+          var wl = parseFloat(toks[0]), eq = parseFloat(toks[1]);
+          if (wl >= 200 && wl <= 2500 && isFinite(eq)) pts.push({ wl: wl, eq: eq });
+        });
+        pts.sort(function(a, b){ return a.wl - b.wl; });
+        var clean = [];
+        pts.forEach(function(p){ if (clean.length && Math.abs(clean[clean.length - 1].wl - p.wl) < 1e-9) clean[clean.length - 1] = p; else clean.push(p); });
+        return clean;
+      }
+      function eqeAt(pts, wl){
+        if (wl <= pts[0].wl) return pts[0].eq;
+        if (wl >= pts[pts.length - 1].wl) return pts[pts.length - 1].eq;
+        var lo = 0, hi = pts.length - 1;
+        while (hi - lo > 1){ var mid = (lo + hi) >> 1; if (pts[mid].wl <= wl) lo = mid; else hi = mid; }
+        var a = pts[lo], b = pts[hi];
+        return a.eq + (b.eq - a.eq) * (wl - a.wl) / (b.wl - a.wl || 1);
+      }
+      $("v24-eqe-file").addEventListener("change", function(ev){
+        var f = ev.target.files && ev.target.files[0]; if (!f) return;
+        var r = new FileReader();
+        r.onload = function(){ $("v24-eqe-ta").value = String(r.result || ""); };
+        r.readAsText(f);
+      });
+      $("v24-eqe-btn").addEventListener("click", function(){
+        var out = $("v24-eqe-out");
+        var pts = parseEQE($("v24-eqe-ta").value);
+        if (pts.length < 3){ out.innerHTML = escHtml(T("eqe_err")); out.classList.add("show"); return; }
+        var mx = 0; pts.forEach(function(p){ mx = Math.max(mx, p.eq); });
+        var fct = mx > 1.5 ? 0.01 : 1;
+        pts.forEach(function(p){ p.eq = Math.max(0, Math.min(1.05, p.eq * fct)); });
+        var lo = Math.max(pts[0].wl, PH[0][0]), hi = Math.min(pts[pts.length - 1].wl, PH[PH.length - 1][0]);
+        var j = 0;
+        for (var i = 0; i < PH.length - 1; i++){
+          var a = Math.max(PH[i][0], lo), b = Math.min(PH[i + 1][0], hi);
+          if (b <= a) continue;
+          var ja = interpTable(PH, a) * eqeAt(pts, a), jb = interpTable(PH, b) * eqeAt(pts, b);
+          j += (ja + jb) / 2 * (b - a);
+        }
+        var who = $("v24-eqe-who").value === "bottom" ? T("lg_bottom") : T("lg_top");
+        out.innerHTML = "<strong>" + escHtml(T("eqe_res", { who: who, j: fmt(j, 2), a: fmt(lo, 0), b: fmt(hi, 0) })) + "</strong>";
+        out.classList.add("show");
+      });
+
+      /* ---------- saved projects & share links ---------- */
+      var PROJ_KEY = "tic-projects-v24", projMem = [], projStoreOK = true;
+      function projLoad(){
+        try {
+          var raw = window.localStorage.getItem(PROJ_KEY);
+          projMem = raw ? JSON.parse(raw) || [] : [];
+          if (!Array.isArray(projMem)) projMem = [];
+        } catch(e){ projStoreOK = false; }
+        return projMem;
+      }
+      function projSaveAll(){
+        if (!projStoreOK) return;
+        try { window.localStorage.setItem(PROJ_KEY, JSON.stringify(projMem)); }
+        catch(e){ projStoreOK = false; renderProjects(); }
+      }
+      function metricOf(d){ return d ? { voc: d.voc, jsc: d.jsc, ff: d.ff, eff: d.eff, pmax: d.pmax } : null; }
+      function entryFromCurrent(name){
+        var t = state.tandem; if (!t || !state.shown) return null;
+        return { name: name || ("Result — " + todayText()), date: todayText(), pin: state.pin,
+          top: metricOf(state.top), bottom: metricOf(state.bottom),
+          extras: state.extras.filter(function(x){ return !!x.data; }).map(function(x){ return metricOf(x.data); }),
+          tandem: { voc: t.voc, jsc: t.jsc, ff: t.ff, eff: t.eff, pmax: t.pmax, vmpp: t.vmpp, jmpp: t.jmpp } };
+      }
+      function entryHtml(e){
+        function seg(name, m){
+          return m ? "<span><b>" + escHtml(name) + "</b> Voc <b>" + fmt(m.voc, 3) + " V</b> · Jsc <b>" + fmt(m.jsc, 2) +
+            " mA/cm²</b> · FF <b>" + fmt(m.ff, 2) + " %</b> · η <b>" + fmt(m.eff, 2) + " %</b></span>" : "";
+        }
+        var h = seg(T("row_top"), e.top) + seg(T("row_bottom"), e.bottom);
+        (e.extras || []).forEach(function(m, i){ h += seg(T("subcell_n", { n: i + 3 }), m); });
+        h += "<span><b>" + escHtml(T("row_tandem")) + "</b> Voc <b>" + fmt(e.tandem.voc, 3) + " V</b> · Jsc <b>" + fmt(e.tandem.jsc, 2) +
+          " mA/cm²</b> · FF <b>" + fmt(e.tandem.ff, 2) + " %</b> · η <b>" + fmt(e.tandem.eff, 2) + " %</b> · Pmax <b>" +
+          fmt(e.tandem.pmax, 2) + " mW/cm²</b> (Pin " + fmt(e.pin, 0) + " mW/cm²)</span>";
+        return h;
+      }
+      function encodeEntry(e){
+        return btoa(unescape(encodeURIComponent(JSON.stringify(e)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      }
+      function decodeEntry(code){
+        try {
+          var b = code.replace(/-/g, "+").replace(/_/g, "/");
+          while (b.length % 4) b += "=";
+          var e = JSON.parse(decodeURIComponent(escape(atob(b))));
+          return (e && e.tandem && isFinite(e.tandem.eff)) ? e : null;
+        } catch(err){ return null; }
+      }
+      function showShareLink(e){
+        /* The share payload is a code, not this page's own address: the
+           code carries the result values and is decoded locally. Adding
+           "#r=" + code to the page address also works (handled on load). */
+        var code = encodeEntry(e);
+        $("v24-share-out").value = code;
+        $("v24-share-row").style.display = "flex";
+        return code;
+      }
+      function showSharedEntry(e){
+        $("shared-body").innerHTML = entryHtml(e);
+        $("shared-card").style.display = "block";
+        $("shared-card").scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
+      }
+      function renderProjects(){
+        var list = $("v24-proj-list"), st = $("v24-proj-status");
+        var items = projLoad();
+        if (!projStoreOK && !items.length) st.textContent = T("proj_nostore");
+        if (!items.length){ list.innerHTML = "<div class=\"fmt\" style=\"margin-top:10px;\">" + escHtml(T("proj_none")) + "</div>"; return; }
+        list.innerHTML = "";
+        items.forEach(function(e, i){
+          var row = document.createElement("div");
+          row.className = "proj-item";
+          row.innerHTML = "<span><strong>" + escHtml(e.name) + "</strong> — η <strong>" + fmt(e.tandem.eff, 2) + " %</strong>" +
+            "<span class=\"meta\"> · " + escHtml(T("proj_saved_on", { d: e.date || "" })) + "</span></span>";
+          var acts = document.createElement("span");
+          acts.className = "acts";
+          [["proj_load", function(){
+              var d = $("v24-proj-detail");
+              d.innerHTML = "<strong>" + escHtml(e.name) + "</strong><div class=\"substats\" style=\"margin-top:8px;\">" + entryHtml(e) + "</div>";
+              d.classList.add("show");
+            }],
+           ["proj_link", function(){ showShareLink(e); }],
+           ["proj_del", function(){
+              projMem.splice(i, 1); projSaveAll(); renderProjects();
+              $("v24-proj-detail").classList.remove("show");
+            }]].forEach(function(pair){
+            var b = document.createElement("button");
+            b.type = "button"; b.className = "btn small"; b.textContent = T(pair[0]);
+            b.addEventListener("click", pair[1]);
+            acts.appendChild(b);
+          });
+          row.appendChild(acts);
+          list.appendChild(row);
+        });
+      }
+      $("v24-proj-save").addEventListener("click", function(){
+        var e = entryFromCurrent($("v24-proj-name").value.trim());
+        if (!e){ toast(T("proj_need")); return; }
+        projLoad(); projMem.unshift(e);
+        if (projMem.length > 30) projMem = projMem.slice(0, 30);
+        projSaveAll(); renderProjects();
+        toast(T("toast_saved"));
+      });
+      $("v24-share-btn").addEventListener("click", function(){
+        var e = entryFromCurrent($("v24-proj-name").value.trim());
+        if (!e){ toast(T("proj_need")); return; }
+        showShareLink(e);
+      });
+      $("v24-share-copy").addEventListener("click", function(){
+        var v = $("v24-share-out").value; if (!v) return;
+        copyText(v, "toast_link");
+      });
+      /* a shared link opened on this page: show its values at the top */
+      (function(){
+        var e = null;
+        try {
+          var m = /#r=([A-Za-z0-9\-_]+)/.exec(window.location.hash || "");
+          if (m) e = decodeEntry(m[1]);
+        } catch(err){ e = null; }
+        if (e){
+          $("shared-body").innerHTML = entryHtml(e);
+          $("shared-card").style.display = "block";
+        }
+      })();
+      $("v24-import-btn").addEventListener("click", function(){
+        var raw = $("v24-import-in").value.trim();
+        var m = /#r=([A-Za-z0-9\-_]+)/.exec(raw);
+        var e = decodeEntry(m ? m[1] : raw);
+        if (!e){ toast(T("imp_err")); return; }
+        showSharedEntry(e);
+      });
+      renderProjects();
+      $("lang-select").addEventListener("change", function(){
+        setTimeout(function(){ renderProjects(); if (batchResults.length) renderBatch(); }, 0);
+      });
 
       /* ---------- language switching ---------- */
       function setLanguage(lang){
