@@ -543,8 +543,8 @@
 
         <div class="samples">
           <span class="lbl" data-i18n="samples_label">Sample files:</span>
-          <button class="btn small" id="dl-sample-iv" type="button" data-i18n="dl_sample_iv">SCAPS .iv sample</button>
-          <button class="btn small" id="dl-sample-csv" type="button" data-i18n="dl_sample_csv">CSV template</button>
+          <a class="btn small" id="dl-sample-iv" href="data:application/octet-stream;base64,U0NBUFMtMUQgSS1WIGN1cnZlIOKAlCBzYW1wbGUgZmlsZSAoVGFuZGVtIEktViBDb21iaW5lcikKVHdvIG51bWVyaWMgY29sdW1uczogdm9sdGFnZSAoViksIGN1cnJlbnQgZGVuc2l0eSAobUEvY20yKS4KSGVhZGVyIGxpbmVzIGxpa2UgdGhlc2UgYXJlIHNraXBwZWQgYXV0b21hdGljYWxseS4KClYgKFYpCUogKG1BL2NtMikKMC4wMDAwCTIxLjAwMDAKMC4wMzI4CTIxLjAwMDAKMC4wNjU1CTIxLjAwMDAKMC4wOTgzCTIxLjAwMDAKMC4xMzEwCTIxLjAwMDAKMC4xNjM4CTIxLjAwMDAKMC4xOTY2CTIxLjAwMDAKMC4yMjkzCTIxLjAwMDAKMC4yNjIxCTIxLjAwMDAKMC4yOTQ4CTIxLjAwMDAKMC4zMjc2CTIxLjAwMDAKMC4zNjA0CTIxLjAwMDAKMC4zOTMxCTIxLjAwMDAKMC40MjU5CTIxLjAwMDAKMC40NTg2CTIxLjAwMDAKMC40OTE0CTIxLjAwMDAKMC41MjQyCTIxLjAwMDAKMC41NTY5CTIwLjk5OTkKMC41ODk3CTIwLjk5OTkKMC42MjI0CTIwLjk5OTgKMC42NTUyCTIwLjk5OTYKMC42ODgwCTIwLjk5OTQKMC43MjA3CTIwLjk5ODgKMC43NTM1CTIwLjk5NzkKMC43ODYyCTIwLjk5NjIKMC44MTkwCTIwLjk5MzEKMC44NTE4CTIwLjk4NzQKMC44ODQ1CTIwLjk3NzIKMC45MTczCTIwLjk1ODcKMC45NTAwCTIwLjkyNTEKMC45ODI4CTIwLjg2NDEKMS4wMTU2CTIwLjc1MzQKMS4wNDgzCTIwLjU1MjYKMS4wODExCTIwLjE4ODMKMS4xMTM4CTE5LjUyNzMKMS4xNDY2CTE4LjMyODMKMS4xNzk0CTE2LjE1MzEKMS4yMTIxCTEyLjIwNjgKMS4yNDQ5CTUuMDQ3NQoxLjI3NzYJLTcuOTQwNwoxLjMxMDQJLTMxLjUwMzgK" download="sample-scaps-top-cell.iv" data-i18n="dl_sample_iv">SCAPS .iv sample</a>
+          <a class="btn small" id="dl-sample-csv" href="data:application/octet-stream;base64,Vm9sdGFnZSAoViksQ3VycmVudCBkZW5zaXR5IChtQS9jbTIpCjAuMDAwMCwxOS44MDAwCjAuMDE4NywxOS44MDAwCjAuMDM3NCwxOS44MDAwCjAuMDU2MiwxOS44MDAwCjAuMDc0OSwxOS44MDAwCjAuMDkzNiwxOS44MDAwCjAuMTEyMywxOS44MDAwCjAuMTMxMCwxOS44MDAwCjAuMTQ5OCwxOS44MDAwCjAuMTY4NSwxOS44MDAwCjAuMTg3MiwxOS44MDAwCjAuMjA1OSwxOS44MDAwCjAuMjI0NiwxOS44MDAwCjAuMjQzNCwxOS44MDAwCjAuMjYyMSwxOS44MDAwCjAuMjgwOCwxOS44MDAwCjAuMjk5NSwxOS44MDAwCjAuMzE4MiwxOS43OTk5CjAuMzM3MCwxOS43OTk5CjAuMzU1NywxOS43OTk4CjAuMzc0NCwxOS43OTk2CjAuMzkzMSwxOS43OTkzCjAuNDExOCwxOS43OTg3CjAuNDMwNiwxOS43OTc3CjAuNDQ5MywxOS43OTU4CjAuNDY4MCwxOS43OTI1CjAuNDg2NywxOS43ODY1CjAuNTA1NCwxOS43NzU3CjAuNTI0MiwxOS43NTY1CjAuNTQyOSwxOS43MjE5CjAuNTYxNiwxOS42NTk3CjAuNTgwMywxOS41NDgyCjAuNTk5MCwxOS4zNDgxCjAuNjE3OCwxOC45ODg5CjAuNjM2NSwxOC4zNDQwCjAuNjU1MiwxNy4xODY1CjAuNjczOSwxNS4xMDg4CjAuNjkyNiwxMS4zNzk0CjAuNzExNCw0LjY4NTEKMC43MzAxLC03LjMzMTEKMC43NDg4LC0yOC45MDAxCg==" download="iv-curve-template.csv" data-i18n="dl_sample_csv">CSV template</a>
         </div>
 
         <div class="panel" id="panel-meas" style="margin-top:16px;">
@@ -1025,8 +1025,8 @@
             <div class="formula">PCE = 31.36 ÷ 100 × 100% = 31.36%</div>
             <p>Try it yourself: download the two sample curves below — they use the same top- and bottom-cell values as this example — load one into each panel above, and press Combine.</p>
             <div class="help-actions">
-              <button class="btn small" id="help-dl-top" type="button">Download sample top-cell curve (CSV)</button>
-              <button class="btn small" id="help-dl-bottom" type="button">Download sample bottom-cell curve (CSV)</button>
+              <a class="btn small" id="help-dl-top" href="data:application/octet-stream;base64,Vm9sdGFnZSAoViksQ3VycmVudCBkZW5zaXR5IChtQS9jbTIpCjAuMDAwMCwyMS4wMDAwCjAuMDMyOCwyMS4wMDAwCjAuMDY1NSwyMS4wMDAwCjAuMDk4MywyMS4wMDAwCjAuMTMxMCwyMS4wMDAwCjAuMTYzOCwyMS4wMDAwCjAuMTk2NiwyMS4wMDAwCjAuMjI5MywyMS4wMDAwCjAuMjYyMSwyMS4wMDAwCjAuMjk0OCwyMS4wMDAwCjAuMzI3NiwyMS4wMDAwCjAuMzYwNCwyMS4wMDAwCjAuMzkzMSwyMS4wMDAwCjAuNDI1OSwyMS4wMDAwCjAuNDU4NiwyMS4wMDAwCjAuNDkxNCwyMS4wMDAwCjAuNTI0MiwyMS4wMDAwCjAuNTU2OSwyMC45OTk5CjAuNTg5NywyMC45OTk5CjAuNjIyNCwyMC45OTk4CjAuNjU1MiwyMC45OTk2CjAuNjg4MCwyMC45OTk0CjAuNzIwNywyMC45OTg4CjAuNzUzNSwyMC45OTc5CjAuNzg2MiwyMC45OTYyCjAuODE5MCwyMC45OTMxCjAuODUxOCwyMC45ODc0CjAuODg0NSwyMC45NzcyCjAuOTE3MywyMC45NTg3CjAuOTUwMCwyMC45MjUxCjAuOTgyOCwyMC44NjQxCjEuMDE1NiwyMC43NTM0CjEuMDQ4MywyMC41NTI2CjEuMDgxMSwyMC4xODgzCjEuMTEzOCwxOS41MjczCjEuMTQ2NiwxOC4zMjgzCjEuMTc5NCwxNi4xNTMxCjEuMjEyMSwxMi4yMDY4CjEuMjQ0OSw1LjA0NzUKMS4yNzc2LC03Ljk0MDcKMS4zMTA0LC0zMS41MDM4Cg==" download="sample-top-cell.csv">Download sample top-cell curve (CSV)</a>
+              <a class="btn small" id="help-dl-bottom" href="data:application/octet-stream;base64,Vm9sdGFnZSAoViksQ3VycmVudCBkZW5zaXR5IChtQS9jbTIpCjAuMDAwMCwxOS44MDAwCjAuMDE4NywxOS44MDAwCjAuMDM3NCwxOS44MDAwCjAuMDU2MiwxOS44MDAwCjAuMDc0OSwxOS44MDAwCjAuMDkzNiwxOS44MDAwCjAuMTEyMywxOS44MDAwCjAuMTMxMCwxOS44MDAwCjAuMTQ5OCwxOS44MDAwCjAuMTY4NSwxOS44MDAwCjAuMTg3MiwxOS44MDAwCjAuMjA1OSwxOS44MDAwCjAuMjI0NiwxOS44MDAwCjAuMjQzNCwxOS44MDAwCjAuMjYyMSwxOS44MDAwCjAuMjgwOCwxOS44MDAwCjAuMjk5NSwxOS44MDAwCjAuMzE4MiwxOS43OTk5CjAuMzM3MCwxOS43OTk5CjAuMzU1NywxOS43OTk4CjAuMzc0NCwxOS43OTk2CjAuMzkzMSwxOS43OTkzCjAuNDExOCwxOS43OTg3CjAuNDMwNiwxOS43OTc3CjAuNDQ5MywxOS43OTU4CjAuNDY4MCwxOS43OTI1CjAuNDg2NywxOS43ODY1CjAuNTA1NCwxOS43NzU3CjAuNTI0MiwxOS43NTY1CjAuNTQyOSwxOS43MjE5CjAuNTYxNiwxOS42NTk3CjAuNTgwMywxOS41NDgyCjAuNTk5MCwxOS4zNDgxCjAuNjE3OCwxOC45ODg5CjAuNjM2NSwxOC4zNDQwCjAuNjU1MiwxNy4xODY1CjAuNjczOSwxNS4xMDg4CjAuNjkyNiwxMS4zNzk0CjAuNzExNCw0LjY4NTEKMC43MzAxLC03LjMzMTEKMC43NDg4LC0yOC45MDAxCg==" download="sample-bottom-cell-filtered.csv">Download sample bottom-cell curve (CSV)</a>
             </div>
           </div>
         </div>
@@ -3672,9 +3672,13 @@
       });
       function downloadBlob(name, blob){
         var a = document.createElement("a");
-        a.href = URL.createObjectURL(blob); a.download = name;
+        var url = URL.createObjectURL(blob);
+        a.href = url; a.download = name; a.rel = "noopener";
+        a.style.display = "none";
         document.body.appendChild(a); a.click();
-        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        // some browsers cancel the download if the object URL is revoked too
+        // soon, so keep it alive for a while before cleaning up
+        setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 60000);
       }
       function srcDesc(src){
         if (!src) return "—";
@@ -3761,34 +3765,11 @@
         img.onerror = function(){ URL.revokeObjectURL(url); toast(T("toast_copyfail")); };
         img.src = url;
       });
-      $("dl-sample-iv").addEventListener("click", function(){
-        var head = [
-          "SCAPS-1D I-V curve — sample file (Tandem I-V Combiner)",
-          "Two numeric columns: voltage (V), current density (mA/cm2).",
-          "Header lines like these are skipped automatically.",
-          "",
-          "V (V)\tJ (mA/cm2)"
-        ].join("\n");
-        downloadBlob("sample-scaps-top-cell.iv", new Blob([head + "\n" + exampleCurve(1.26, 21.0, 0.055)], { type: "text/plain" }));
-        toast(T("toast_sample"));
-      });
-      $("dl-sample-csv").addEventListener("click", function(){
-        var rows = ["Voltage (V),Current density (mA/cm2)"];
-        exampleCurve(0.72, 19.8, 0.032).split("\n").forEach(function(l){ rows.push(l.replace("\t", ",")); });
-        downloadBlob("iv-curve-template.csv", new Blob([rows.join("\n")], { type: "text/csv" }));
-        toast(T("toast_sample"));
-      });
-      $("help-dl-top").addEventListener("click", function(){
-        var rows = ["Voltage (V),Current density (mA/cm2)"];
-        exampleCurve(1.26, 21.0, 0.055).split("\n").forEach(function(l){ rows.push(l.replace("\t", ",")); });
-        downloadBlob("sample-top-cell.csv", new Blob([rows.join("\n")], { type: "text/csv" }));
-        toast(T("toast_sample"));
-      });
-      $("help-dl-bottom").addEventListener("click", function(){
-        var rows = ["Voltage (V),Current density (mA/cm2)"];
-        exampleCurve(0.72, 19.8, 0.032).split("\n").forEach(function(l){ rows.push(l.replace("\t", ",")); });
-        downloadBlob("sample-bottom-cell-filtered.csv", new Blob([rows.join("\n")], { type: "text/csv" }));
-        toast(T("toast_sample"));
+      // the sample files are real files served with the page, linked straight
+      // from the buttons — a blob made on the spot did not download everywhere
+      ["dl-sample-iv", "dl-sample-csv", "help-dl-top", "help-dl-bottom"].forEach(function(id){
+        var el = $(id);
+        if (el) el.addEventListener("click", function(){ toast(T("toast_sample")); });
       });
       $("reset-all").addEventListener("click", function(){
         ["top", "bottom"].forEach(function(cell){
