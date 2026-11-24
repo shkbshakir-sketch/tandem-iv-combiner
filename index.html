@@ -8,9 +8,15 @@
     <title>Tandem IV Combiner | Free Solar Cell Tandem Calculator</title>
     <meta name="description" content="Free online Tandem IV Combiner tool. Combine two solar cell I-V curves, calculate tandem performance, compare 2-terminal and 4-terminal configurations, and export results." />
     <meta name="author" content="Shakib Shakir Rick, Department of EEE, Uttara University" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://shkbshakir-sketch.github.io/tandem-iv-combiner/" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://shkbshakir-sketch.github.io/tandem-iv-combiner/" />
     <meta property="og:title" content="Tandem I-V Combiner — Tandem Solar Cell I–V Curve Calculator" />
     <meta property="og:description" content="Give the two subcell I–V curves, get the full tandem result: Voc, Jsc, FF, efficiency, combined curve, CSV download and a 3D result view. Free online tool." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Tandem IV Combiner | Free Solar Cell Tandem Calculator" />
+    <meta name="twitter:description" content="Free tandem solar cell calculator and IV curve combiner. Combine top and bottom subcell I-V curves to get Voc, Jsc, fill factor and efficiency." />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -26,6 +32,44 @@
         "affiliation": { "@type": "CollegeOrUniversity", "name": "Uttara University" },
         "email": "2201161023@uttarauniversity.edu.bd"
       }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What input files does the Tandem I-V Combiner accept?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It accepts plain text, CSV, DAT and SCAPS-1D .iv files with two columns: voltage in volts and current density in mA/cm². You can also paste the numbers directly or use the sample files on the page. Header lines are skipped automatically." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need an absorption or spectrum file?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. You only need the two subcell I-V curves. The bottom cell curve should already be the filtered curve, made under the light that passes through the top cell. No separate absorption file or spectrum file is needed for the main combine." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between 2-terminal and 4-terminal results?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In a 2-terminal tandem the subcells are connected in series, so the same current flows through both and the voltages add. The smaller subcell current limits the tandem. In a 4-terminal tandem the subcells work separately, each at its own maximum power point, and the powers add with no current matching needed." }
+        },
+        {
+          "@type": "Question",
+          "name": "What do Rs and Rsh mean?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Rs is series resistance, the resistance in the contacts and layers that lowers the fill factor near open-circuit voltage. Rsh is shunt resistance, the leakage path that lowers the fill factor near short-circuit current. This tool estimates both from the slope of each I-V curve." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use it for triple-junction cells?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Use the Add another subcell button to add a third or fourth subcell. The same series rule is used: at each current, all subcell voltages are added to build the combined curve." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the Tandem I-V Combiner free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free to use online with no sign-up. The calculation runs in your browser, and you can download the combined curve, tables and graphs for your work." }
+        }
+      ]
     }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -345,6 +389,25 @@
       }
       .help-wide{ grid-column:1 / -1; }
       .help-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+      /* guide, about, faq and method sections */
+      .guide-card{ margin-top:0; box-shadow:none; }
+      .guide-card h3{ font-size:15.5px; margin:0 0 6px; }
+      .guide-card p{ margin:0 0 10px; font-size:14.5px; color:var(--ink-2); }
+      .guide-card p:last-child{ margin-bottom:0; }
+      .guide-steps{ margin:0; padding-left:22px; font-size:14.5px; color:var(--ink-2); }
+      .guide-steps li{ margin-bottom:10px; }
+      .guide-steps li:last-child{ margin-bottom:0; }
+      .guide-steps strong{ color:var(--ink); }
+      .guide-steps code{ font-family:"IBM Plex Mono", monospace; font-size:12.5px; background:var(--surface-2); border:1px solid var(--line); padding:1px 5px; border-radius:4px; }
+      .faq-list{ display:grid; gap:10px; }
+      .faq-item{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:0 18px; }
+      .faq-item summary{ cursor:pointer; font-weight:600; font-size:15px; padding:15px 0; list-style-position:outside; }
+      .faq-item p{ margin:0 0 15px; font-size:14.5px; color:var(--ink-2); max-width:78ch; }
+      .method-card{ margin-top:0; box-shadow:none; }
+      .method-card h3{ font-size:15.5px; margin:0 0 6px; }
+      .method-card p{ margin:0 0 10px; font-size:14.5px; color:var(--ink-2); }
+      .method-card ul{ margin:0 0 10px; padding-left:20px; font-size:14.5px; color:var(--ink-2); }
+      .method-card li{ margin-bottom:4px; }
       .contact-card{
         background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
         box-shadow:var(--shadow); padding:22px; display:flex; flex-wrap:wrap; gap:20px;
@@ -1032,6 +1095,97 @@
         </div>
       </section>
 
+      <!-- how to use guide -->
+      <section class="block" aria-labelledby="guide-head">
+        <div class="block-head">
+          <h2 id="guide-head">How to Use This Tandem Solar Cell Calculator</h2>
+          <span class="hint">From two subcell files to a full tandem result in five simple steps.</span>
+        </div>
+        <div class="card guide-card">
+          <p>This guide shows how to use the IV curve combiner above, step by step. You do not need to install anything, and you do not need a new simulation. If you already have the top and bottom subcell curves, the whole process takes less than a minute.</p>
+          <ol class="guide-steps">
+            <li><strong>Step 1 — Prepare the top cell curve file.</strong> Export the I-V curve of the top subcell from your simulator or measurement setup. In SCAPS-1D, save the I-V result as a <code>.iv</code> file. A plain text or CSV file also works, as long as it has two columns: voltage in volts (V) and current density in mA/cm². The top cell curve should be made under the full AM1.5G spectrum, the normal sunlight spectrum used for solar cell testing.</li>
+            <li><strong>Step 2 — Prepare the bottom cell curve file.</strong> Export the bottom subcell curve in the same two-column format. This is the most important point in the whole guide: the bottom cell curve must be measured or simulated under the <strong>filtered spectrum</strong> — the light that passes through the top cell and reaches the bottom cell. Do not use a bottom cell curve made under full sunlight for a two-terminal result, because its current will be too high and the tandem efficiency will look better than it really is.</li>
+            <li><strong>Step 3 — Paste or upload each curve.</strong> In the Top subcell panel, paste the top cell data or upload its file. Do the same for the bottom cell in the Bottom subcell panel. You can also load the example curves first to see how the tool works. Check that each panel shows the correct number of points, Voc and Jsc.</li>
+            <li><strong>Step 4 — Check the settings and click Combine.</strong> The incident power, Pin, is 100 mW/cm² for 1 sun (AM1.5G) by default. Leave the optional loss and correction fields at zero or 1 unless you have a clear reason to change them. Then click <strong>Combine → Tandem result</strong>.</li>
+            <li><strong>Step 5 — Read the tandem result.</strong> The tool shows the full tandem solar cell I-V curve and four main values: open-circuit voltage (Voc), short-circuit current density (Jsc), fill factor (FF) and efficiency. You can also view the combined curve on the graph, compare each subcell in the table, open the 3D result view, and download the tandem curve as CSV, a table for a paper, or a publication graph.</li>
+          </ol>
+          <p style="margin-top:12px;">Tip: if the two subcell currents are very different, the tandem Jsc will be set by the smaller one. The result section tells you which subcell is limiting the current, so you know which cell to improve first.</p>
+        </div>
+      </section>
+
+      <!-- what is a tandem combiner -->
+      <section class="block" aria-labelledby="about-head">
+        <div class="block-head">
+          <h2 id="about-head">What Is a Tandem I-V Combiner?</h2>
+        </div>
+        <div class="help-grid">
+          <div class="card guide-card">
+            <h3>Tandem solar cells in simple words</h3>
+            <p>A tandem solar cell uses two solar cells stacked on top of each other. The top cell has a wide bandgap and absorbs the high-energy part of sunlight. The bottom cell has a low bandgap and absorbs the lower-energy light that passes through. A common example is a perovskite top cell on a silicon bottom cell.</p>
+            <p>Using two cells in this way can give a higher efficiency than one cell alone, because less energy is lost as heat. This is why tandem cells are now a major topic in photovoltaic research, and why a clear photovoltaic calculator for tandem work is useful in daily lab and simulation work.</p>
+          </div>
+          <div class="card guide-card">
+            <h3>How the combiner builds the tandem curve</h3>
+            <p>In a two-terminal tandem, the two subcells are series connected solar cells: the same current must flow through both cells. Because they are in series, their voltages add at that same current.</p>
+            <p>So, to build one tandem solar cell I-V curve, this solar cell analysis tool takes each current value, finds the top cell voltage and the bottom cell voltage at that current, and adds them together. Repeating this for every current gives the full combined curve. The smaller subcell current limits the tandem, so the tandem Jsc cannot be higher than the lower of the two subcell Jsc values. The tandem Voc, on the other hand, is close to the sum of the two subcell Voc values.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- faq -->
+      <section class="block" aria-labelledby="faq-head">
+        <div class="block-head">
+          <h2 id="faq-head">Frequently Asked Questions</h2>
+          <span class="hint">Quick answers about files, settings and results.</span>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What input files does it accept?</summary>
+            <p>It accepts plain text, CSV, DAT and SCAPS-1D <code>.iv</code> files with two columns: voltage in volts and current density in mA/cm². You can upload a file, paste the numbers directly, drag and drop a file onto a panel, or use the sample files on this page. Header lines are skipped automatically, and if a SCAPS file holds several runs, the last curve in the file is used.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do I need an absorption or spectrum file?</summary>
+            <p>No. You only need the two subcell I-V curves. No separate absorption file or spectrum file is needed for the main combine. The key point is that the bottom cell curve should already be the filtered curve — made under the light that passes through the top cell. The optional optical filter calculator on this page can estimate a correction factor when you do not have a filtered curve, but a real filtered simulation is more accurate.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What is the difference between 2-terminal and 4-terminal results?</summary>
+            <p>In a 2-terminal tandem the subcells are connected in series, so the same current flows through both and the voltages add. The smaller subcell current limits the whole device, so current matching matters. In a 4-terminal tandem the subcells are stacked but work separately, each at its own maximum power point. Their powers simply add, and no current matching is needed. After a combine, this page shows both results from the same two curves so you can compare them directly.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What do Rs and Rsh mean?</summary>
+            <p>Rs is series resistance — the resistance of contacts, layers and wiring in the path of the current. A high Rs lowers the fill factor, mainly near the open-circuit voltage. Rsh is shunt resistance — a leakage path that lets current bypass the cell. A low Rsh also lowers the fill factor, mainly near the short-circuit current. This tool estimates Rs from the slope of the curve near Voc and Rsh from the slope near Jsc. Use the values as a guide and check them against your simulator values when you have them.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I use it for triple-junction cells?</summary>
+            <p>Yes. Click “Add another subcell” to add a third or fourth subcell panel, then add each subcell curve in the same way. The same series rule is used for all of them: at each current, all subcell voltages are added to build the combined curve, and the smallest subcell current limits the device. With no extra subcell added, the normal two-cell result stays exactly the same.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is it free?</summary>
+            <p>Yes. The tool is free to use online, with public access and no sign-up. The calculation runs in your browser. You can download the combined curve, copy tables for a paper, and save publication graphs at no cost.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- method and limitations -->
+      <section class="block" aria-labelledby="method-head">
+        <div class="block-head">
+          <h2 id="method-head">Method and Limitations</h2>
+        </div>
+        <div class="card method-card">
+          <h3>Method — series combination</h3>
+          <p>The main result uses the standard series combination method for two-terminal tandem cells. Both subcell curves are placed on one shared current grid, from zero up to the smaller of the two short-circuit currents. At each current on that grid, the tandem voltage is the sum of the subcell voltages at that current. From the combined curve, the tool reads Voc, Jsc, the maximum power point, fill factor and efficiency in the normal way: FF = Pmax ÷ (Voc × Jsc) and efficiency = Pmax ÷ Pin × 100%.</p>
+          <h3>Assumptions</h3>
+          <ul>
+            <li>Both curves belong to the same device area and the same test conditions, apart from the filtered spectrum for the bottom cell.</li>
+            <li>The top cell curve uses the full AM1.5G spectrum, and the bottom cell curve uses the filtered spectrum after the top cell, unless you state a different choice in the spectrum settings.</li>
+            <li>The connection between the subcells is ideal unless you enter your own voltage loss or reflection loss estimate. At zero loss, no extra loss is added.</li>
+            <li>Current density is in mA/cm² and Pin is 100 mW/cm² at 1 sun, unless you change Pin yourself.</li>
+          </ul>
+          <h3>What is an estimate only</h3>
+          <p>Some parts of this page are estimates, not full simulations. The temperature result scales the 25 °C result with typical temperature coefficients. The Shockley–Queisser (SQ) limit comparison uses standard detailed-balance guide values and a simple current-matched estimate for the tandem. The optical filter calculator treats the top cell as a simple step absorber with a Beer–Lambert leakage term. The Rs, Rsh, EQE integrated Jsc and spectral correction values are also estimates from the data you give. For a paper or a final design, check these points with a full simulation, for example a SCAPS-1D run under the correct spectrum and temperature.</p>
+          <p>The combiner itself does not change your input curves. It only interpolates them onto a shared grid and adds the voltages as described above, so if the input curves are correct and the bottom curve is truly the filtered one, the combined result follows directly from your own data.</p>
+        </div>
       </section>
 
       <footer class="site">
