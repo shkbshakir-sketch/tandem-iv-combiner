@@ -567,6 +567,16 @@
             <div class="field-warn" id="spec-warn" role="alert"></div>
           </div>
           <div class="field">
+            <label for="loss-v" data-i18n="lossv_label">Interfacial voltage loss — estimate (optional)</label>
+            <input type="number" id="loss-v" value="0" min="0" step="any" /><span class="unit">mV</span>
+            <div class="fmt" data-i18n="lossv_hint">Your own estimate of the voltage lost at the tunnel / recombination junction between the subcells. It is subtracted from the combined Voc. 0 = ideal junction, no loss — the result is then exactly as before.</div>
+          </div>
+          <div class="field">
+            <label for="loss-r" data-i18n="lossr_label">Optical reflection loss — estimate (optional)</label>
+            <input type="number" id="loss-r" value="0" min="0" max="100" step="any" /><span class="unit">%</span>
+            <div class="fmt" data-i18n="lossr_hint">Your own estimate of the light lost to reflection at the interfaces, in percent. It reduces the tandem Jsc by that percent. 0 = no reflection loss — the result is then exactly as before.</div>
+          </div>
+          <div class="field">
             <label for="spec-top" data-i18n="spectop_label">Top cell curve was measured / simulated under</label>
             <select id="spec-top">
               <option value="am15" data-i18n="spectop_am15">Full AM1.5G sunlight</option>
@@ -646,6 +656,7 @@
           <div class="tile"><div class="k" data-i18n="k_eff">Efficiency · η</div><div class="v" id="t-eff">—</div><div class="u" data-i18n="u_pct">percent (%)</div></div>
         </div>
         <div class="substats" id="substats"></div>
+        <div class="spec-note" id="loss-note" style="display:none; margin-top:12px;"></div>
         <div class="limit-note" id="limit-note" style="display:none"></div>
 
         <div class="card" id="sens-card" style="display:none">
@@ -772,7 +783,7 @@
             <button class="btn" id="v24-latex-copy" type="button" data-i18n="latex_copy">Copy LaTeX table</button>
             <button class="btn" id="v24-latex-dl" type="button" data-i18n="latex_dl">Download .tex</button>
             <button class="btn" id="v24-tsv-copy" type="button" data-i18n="tsv_copy">Copy table for Word / Excel (TSV)</button>
-            <button class="btn" id="v24-word-dl" type="button" data-i18n="word_dl">Download Word table (.doc)</button>
+            <button class="btn" id="v24-word-dl" type="button" data-i18n="word_dl">Download Word table (.docx)</button>
             <button class="btn" id="v24-latex-prev" type="button" data-i18n="latex_prev">Preview LaTeX</button>
           </div>
           <div class="v24-pre" id="v24-latex-pre"></div>
@@ -830,7 +841,7 @@
 
         <div class="card" style="margin-top:0;">
           <h3 data-i18n="batch_h">Batch processing — many I–V files at once</h3>
-          <p class="sub" data-i18n="batch_sub">Upload up to 20 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.</p>
+          <p class="sub" data-i18n="batch_sub">Upload up to 50 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.</p>
           <div class="v24-grid">
             <div class="field">
               <label for="v24-batch-top" data-i18n="batch_top">Top-cell files (multiple)</label>
@@ -888,6 +899,12 @@
             <input type="text" id="v24-import-in" data-i18n-ph="imp_ph" placeholder="Paste a share code here" aria-label="Share code" />
             <button class="btn small" id="v24-import-btn" type="button" data-i18n="imp_btn">Load shared code</button>
           </div>
+          <div class="share-out">
+            <button class="btn" id="v24-backup-export" type="button" data-i18n="backup_export">Export all saved projects (backup file)</button>
+            <button class="btn" id="v24-backup-import-btn" type="button" data-i18n="backup_import">Import backup</button>
+            <input type="file" id="v24-backup-file" accept=".json,application/json" style="display:none" aria-label="Backup file" />
+          </div>
+          <div class="fmt" data-i18n="backup_hint">Backup: export downloads every saved project as one small file. Importing a backup restores those projects as the saved list, replacing the projects currently saved in this browser — export first if you want to keep both.</div>
           <div class="status" id="v24-proj-status" role="status"></div>
           <div id="v24-proj-list"></div>
           <div class="v24-out" id="v24-proj-detail"></div>
@@ -944,7 +961,7 @@
           <span data-i18n="dev_role">Student, Department of EEE</span><br />
           <span data-i18n="dev_uni">Uttara University</span><br />
           <span class="dev-mail">2201161023@uttarauniversity.edu.bd</span> <button class="mini-copy" id="copy-addr" type="button" data-i18n="dlg_copy">Copy</button><br />
-          <span>Version 2.4 · 23 November 2026</span>
+          <span>Version 2.5 · 24 November 2026</span>
         </span>
       </footer>
     </div>
@@ -2312,9 +2329,20 @@
       pub_h: "Publication table export",
       pub_sub: "The comparison table above, ready for a paper: LaTeX (booktabs) to paste into a manuscript, a tab-separated copy that pastes straight into Word or Excel as a table, or a Word file download.",
       latex_copy: "Copy LaTeX table", latex_dl: "Download .tex", tsv_copy: "Copy table for Word / Excel (TSV)",
-      word_dl: "Download Word table (.doc)", latex_prev: "Preview LaTeX",
+      word_dl: "Download Word table (.docx)", latex_prev: "Preview LaTeX",
       toast_latex: "LaTeX table copied.", toast_tsv: "Table copied — paste it into Word or Excel.",
-      toast_tex: "LaTeX table downloaded (.tex).", toast_word: "Word table downloaded (.doc).",
+      toast_tex: "LaTeX table downloaded (.tex).", toast_word: "Word table downloaded (.docx).",
+      lossv_label: "Interfacial voltage loss — estimate (optional)",
+      lossv_hint: "Your own estimate of the voltage lost at the tunnel / recombination junction between the subcells. It is subtracted from the combined Voc. 0 = ideal junction, no loss — the result is then exactly as before.",
+      lossr_label: "Optical reflection loss — estimate (optional)",
+      lossr_hint: "Your own estimate of the light lost to reflection at the interfaces, in percent. It reduces the tandem Jsc by that percent. 0 = no reflection loss — the result is then exactly as before.",
+      loss_applied: "Loss estimates applied (your own estimates, not measured values): interfacial voltage loss {v} mV taken off the combined Voc, optical reflection loss {r} % taken off the Jsc. Without them the ideal result would be Voc {voc} V, Jsc {jsc} mA/cm², η {eff} %.",
+      backup_export: "Export all saved projects (backup file)", backup_import: "Import backup",
+      backup_hint: "Backup: export downloads every saved project as one small file. Importing a backup restores those projects as the saved list, replacing the projects currently saved in this browser — export first if you want to keep both.",
+      backup_exported: "Backup file downloaded — {n} saved project(s) in it.",
+      backup_imported: "Backup imported — {n} saved project(s) restored.",
+      backup_none: "No saved projects to back up yet.",
+      backup_err: "That file could not be read as a projects backup — nothing was changed.",
       sq_h: "Shockley–Queisser (SQ) limit comparison",
       sq_sub: "Enter the subcell bandgaps. The single-junction SQ limits are interpolated from standard detailed-balance values (AM1.5G, 300 K, approximate). The tandem SQ figure is an estimate for a current-matched pair (top cell thinned to match currents, radiative-limit voltages, fill factor 0.89) — a guide, not an exact detailed-balance run.",
       sq_egt: "Top-cell bandgap (eV)", sq_egb: "Bottom-cell bandgap (eV)", sq_btn: "Compare with SQ limit",
@@ -2331,10 +2359,10 @@
       temp_res: "Estimate at {t} °C (from the 25 °C result): Voc {voc} V · Jsc {jsc} mA/cm² · FF {ff} % · η {eff} %",
       adv_h: "Batch, EQE & saved projects", adv_hint: "Work with many runs at once, integrate an EQE curve, and keep your results.",
       batch_h: "Batch processing — many I–V files at once",
-      batch_sub: "Upload up to 20 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.",
+      batch_sub: "Upload up to 50 files in total — for example the top-cell runs of a SCAPS-1D batch (thickness sweep) plus the bottom-cell file. Files are paired in filename order; a single file on one side is reused for every file on the other side. Each pair is combined with exactly the same calculation as the main tool.",
       batch_top: "Top-cell files (multiple)", batch_bot: "Bottom-cell files (multiple, or one)", batch_btn: "Run batch",
       batch_none: "Choose at least one top-cell file and one bottom-cell file first.",
-      batch_many: "Too many files — {n} chosen, the limit is 20 in total. Nothing was run.",
+      batch_many: "Too many files — {n} chosen, the limit is 50 in total. Nothing was run.",
       batch_done: "Batch finished: {ok} pair(s) combined, {bad} file(s) could not be read.",
       batch_pair: "Pair", th_topj: "Top Jsc", th_botj: "Bottom Jsc", th_mismatch: "Mismatch",
       match_h: "Current matching — from the batch above",
@@ -2364,9 +2392,20 @@
       pub_h: "Publication table export",
       pub_sub: "উপরের comparison table, paper-এর জন্য তৈরি আকারে: manuscript-এ paste করার LaTeX (booktabs), Word বা Excel-এ সরাসরি table হিসেবে paste হওয়া tab-separated copy, অথবা Word file download।",
       latex_copy: "LaTeX table copy করুন", latex_dl: ".tex download", tsv_copy: "Word / Excel-এর জন্য table copy (TSV)",
-      word_dl: "Word table download (.doc)", latex_prev: "LaTeX preview",
+      word_dl: "Word table download (.docx)", latex_prev: "LaTeX preview",
       toast_latex: "LaTeX table copy হয়েছে।", toast_tsv: "Table copy হয়েছে — Word বা Excel-এ paste করুন।",
-      toast_tex: "LaTeX table download হয়েছে (.tex)।", toast_word: "Word table download হয়েছে (.doc)।",
+      toast_tex: "LaTeX table download হয়েছে (.tex)।", toast_word: "Word table download হয়েছে (.docx)।",
+      lossv_label: "Interface voltage loss — estimate (ঐচ্ছিক)",
+      lossv_hint: "দুই subcell-এর মাঝের tunnel / recombination junction-এ কতটা voltage নষ্ট হয়, তার নিজের estimate। এটি combined Voc থেকে বাদ যাবে। 0 = ideal junction, কোনো loss নেই — তখন result আগের মতোই থাকবে।",
+      lossr_label: "Optical reflection loss — estimate (ঐচ্ছিক)",
+      lossr_hint: "Interface গুলোতে reflection-এ কত শতাংশ আলো নষ্ট হয়, তার নিজের estimate। এটি tandem Jsc ওই শতাংশ কমিয়ে দেবে। 0 = কোনো reflection loss নেই — তখন result আগের মতোই থাকবে।",
+      loss_applied: "Loss estimate প্রয়োগ করা হয়েছে (নিজের দেওয়া estimate, মাপা মান নয়): combined Voc থেকে interfacial voltage loss {v} mV বাদ, Jsc থেকে optical reflection loss {r} % বাদ। এগুলো ছাড়া ideal result হতো Voc {voc} V, Jsc {jsc} mA/cm², η {eff} %।",
+      backup_export: "সব saved project export করুন (backup file)", backup_import: "Backup import করুন",
+      backup_hint: "Backup: export করলে সব saved project একটি ছোট file হিসেবে download হবে। Backup import করলে সেই project গুলোই saved list হিসেবে ফিরে আসবে — এই browser-এ এখন save থাকা project গুলোর বদলে। দুটোই রাখতে চাইলে আগে export করে নিন।",
+      backup_exported: "Backup file download হয়েছে — এতে {n}টি saved project আছে।",
+      backup_imported: "Backup import হয়েছে — {n}টি saved project ফিরিয়ে আনা হয়েছে।",
+      backup_none: "Backup করার মতো কোনো saved project এখনো নেই।",
+      backup_err: "File-টি projects backup হিসেবে পড়া যায়নি — কিছুই বদলায়নি।",
       sq_h: "Shockley–Queisser (SQ) limit তুলনা",
       sq_sub: "দুই subcell-এর bandgap লিখুন। Single-junction SQ limit standard detailed-balance মান থেকে interpolate করা (AM1.5G, 300 K, আনুমানিক)। Tandem SQ মানটি current-matched pair-এর estimate (current মেলাতে top cell পাতলা ধরা, radiative-limit voltage, fill factor 0.89) — guide হিসেবে নিন, exact detailed-balance run নয়।",
       sq_egt: "Top-cell bandgap (eV)", sq_egb: "Bottom-cell bandgap (eV)", sq_btn: "SQ limit-এর সাথে তুলনা করুন",
@@ -2383,10 +2422,10 @@
       temp_res: "{t} °C-তে estimate (25 °C result থেকে): Voc {voc} V · Jsc {jsc} mA/cm² · FF {ff} % · η {eff} %",
       adv_h: "Batch, EQE ও saved project", adv_hint: "একসাথে অনেক run নিয়ে কাজ করুন, EQE curve integrate করুন, আর result গুলো রেখে দিন।",
       batch_h: "Batch processing — একসাথে অনেক I–V file",
-      batch_sub: "মোট সর্বোচ্চ ২০টি file upload করুন — যেমন SCAPS-1D batch-এর top-cell run গুলো (thickness sweep) আর bottom-cell file। File গুলো filename-এর order-এ pair করা হয়; একপাশে একটি file থাকলে সেটি অন্যপাশের সব file-এর সাথে ব্যবহার হয়। প্রতিটি pair main tool-এর ঠিক একই হিসাবে combine করা হয়।",
+      batch_sub: "মোট সর্বোচ্চ ৫০টি file upload করুন — যেমন SCAPS-1D batch-এর top-cell run গুলো (thickness sweep) আর bottom-cell file। File গুলো filename-এর order-এ pair করা হয়; একপাশে একটি file থাকলে সেটি অন্যপাশের সব file-এর সাথে ব্যবহার হয়। প্রতিটি pair main tool-এর ঠিক একই হিসাবে combine করা হয়।",
       batch_top: "Top-cell file (একাধিক)", batch_bot: "Bottom-cell file (একাধিক, বা একটি)", batch_btn: "Batch চালান",
       batch_none: "আগে অন্তত একটি top-cell file ও একটি bottom-cell file বেছে নিন।",
-      batch_many: "File বেশি হয়ে গেছে — {n}টি বেছে নিয়েছেন, limit মোট ২০টি। কিছুই চালানো হয়নি।",
+      batch_many: "File বেশি হয়ে গেছে — {n}টি বেছে নিয়েছেন, limit মোট ৫০টি। কিছুই চালানো হয়নি।",
       batch_done: "Batch শেষ: {ok}টি pair combine হয়েছে, {bad}টি file পড়া যায়নি।",
       batch_pair: "Pair", th_topj: "Top Jsc", th_botj: "Bottom Jsc", th_mismatch: "Mismatch",
       match_h: "Current matching — উপরের batch থেকে",
@@ -2480,7 +2519,7 @@
       "use strict";
       var $ = function(id){ return document.getElementById(id); };
       var DEV_MAIL = "2201161023@uttarauniversity.edu.bd";
-      var TOOL_VERSION = "2.4", TOOL_DATE = "23 November 2026";
+      var TOOL_VERSION = "2.5", TOOL_DATE = "24 November 2026";
       var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.__T = T;
 
@@ -2489,6 +2528,7 @@
         statusTop: null, statusBottom: null,   // {kind:'ok', n, src:{type, name}, flipped} | {kind:'err', key, n}
         tandem: null, pin: 100, shown: false, stale: false,
         specFactor: 1, bottomRawPts: null,     // unscaled bottom points + spectral correction factor
+        vLossMv: 0, rLossPct: 0,               // v2.5: user-entered loss estimates — 0/0 = ideal, result exactly as before
         spectrumTop: "am15", spectrumBottom: "filtered",  // user's own statement of how each curve was measured/simulated
         measured: null, statusMeas: null,      // optional measured tandem curve + its metrics
         show: { top:true, bottom:true, tandem:true, power:true },
@@ -2641,20 +2681,51 @@
           var j = jscT * i / N;
           var vt = voltageAtJ(tPts, j), vb = voltageAtJ(bPts, j);
           var v = vt + vb, p = v * j;
-          curve.push({ v: v, j: j, p: p });
+          curve.push({ v: v, j: j, p: p, vt: vt, vb: vb });
           if (p > pmax){ pmax = p; vmpp = v; jmpp = j; vTopMpp = vt; vBotMpp = vb; }
         }
         return { curve: curve, voc: vocT, jsc: jscT, pmax: pmax, vmpp: vmpp, jmpp: jmpp,
                  ff: (vocT > 0 && jscT > 0) ? (pmax / (vocT * jscT)) * 100 : 0,
                  eff: pin > 0 ? (pmax / pin) * 100 : 0, vTopMpp: vTopMpp, vBotMpp: vBotMpp };
       }
+      /* v2.5 loss estimates — user-entered only, never measured or fitted.
+         Interfacial voltage loss subtracts a fixed voltage from the
+         combined curve; optical reflection loss scales the current down
+         by the given percent. With both at 0 the ideal result object is
+         returned untouched, so the verified numbers stay exact. */
+      function applyLosses(res, pin){
+        var vl = state.vLossMv / 1000, rf = state.rLossPct / 100;
+        if (!res || (vl === 0 && rf === 0)) return res;
+        var curve = [], pmax = 0, vmpp = 0, jmpp = 0, vTopMpp = 0, vBotMpp = 0, vCells = null;
+        res.curve.forEach(function(p){
+          var v2 = Math.max(0, p.v - vl), j2 = p.j * (1 - rf), p2 = v2 * j2;
+          var q = { v: v2, j: j2, p: p2, vt: p.vt, vb: p.vb };
+          if (p.vs) q.vs = p.vs;
+          curve.push(q);
+          if (p2 > pmax){ pmax = p2; vmpp = v2; jmpp = j2; vTopMpp = p.vt || 0; vBotMpp = p.vb || 0; vCells = p.vs || null; }
+        });
+        var voc2 = Math.max(0, res.voc - vl), jsc2 = res.jsc * (1 - rf);
+        var out = { curve: curve, voc: voc2, jsc: jsc2, pmax: pmax, vmpp: vmpp, jmpp: jmpp,
+          ff: (voc2 > 0 && jsc2 > 0) ? (pmax / (voc2 * jsc2)) * 100 : 0,
+          eff: pin > 0 ? (pmax / pin) * 100 : 0,
+          vTopMpp: vTopMpp, vBotMpp: vBotMpp,
+          vocIdeal: res.voc, jscIdeal: res.jsc, effIdeal: res.eff,
+          vLossMv: state.vLossMv, rLossPct: state.rLossPct };
+        if (vCells) out.vCellsMpp = vCells;
+        else if (res.vCellsMpp) out.vCellsMpp = res.vCellsMpp;
+        return out;
+      }
       function combine(){
         if (!state.top || !state.bottom) return null;
         var loaded = loadedExtras();
-        if (!loaded.length) return combinePts(state.top.pts, state.bottom.pts, state.pin);
-        var list = [state.top.pts, state.bottom.pts];
-        loaded.forEach(function(x){ list.push(x.data.pts); });
-        return combineN(list, state.pin);
+        var res;
+        if (!loaded.length) res = combinePts(state.top.pts, state.bottom.pts, state.pin);
+        else {
+          var list = [state.top.pts, state.bottom.pts];
+          loaded.forEach(function(x){ list.push(x.data.pts); });
+          res = combineN(list, state.pin);
+        }
+        return applyLosses(res, state.pin);
       }
       /* Series combination of N subcells — the same rule as combinePts
          (common current grid, voltages add), generalised. With two cells
@@ -2668,7 +2739,7 @@
           var j = jscT * i / N, v = 0, vs = [];
           list.forEach(function(pts){ var vk = voltageAtJ(pts, j); vs.push(vk); v += vk; });
           var p = v * j;
-          curve.push({ v: v, j: j, p: p });
+          curve.push({ v: v, j: j, p: p, vt: vs[0] || 0, vb: vs[1] || 0, vs: vs.slice() });
           if (p > pmax){ pmax = p; vmpp = v; jmpp = j; vCells = vs; }
         }
         return { curve: curve, voc: vocT, jsc: jscT, pmax: pmax, vmpp: vmpp, jmpp: jmpp,
@@ -3170,6 +3241,14 @@
         }
         refresh();
       });
+      /* ---------- v2.5 loss estimates (user-entered) ---------- */
+      function readLosses(){
+        var v = parseFloat($("loss-v").value), r = parseFloat($("loss-r").value);
+        state.vLossMv = (isFinite(v) && v > 0) ? v : 0;
+        state.rLossPct = (isFinite(r) && r > 0) ? Math.min(100, r) : 0;
+      }
+      $("loss-v").addEventListener("input", function(){ readLosses(); hideResult(); refresh(); });
+      $("loss-r").addEventListener("input", function(){ readLosses(); hideResult(); refresh(); });
       /* ---------- spectrum choice (user-stated, never assumed) ---------- */
       function renderSpecNote(){
         var el = $("spec-note"); if (!el) return;
@@ -3405,6 +3484,13 @@
             if (!x.data || !t.vCellsMpp) return "";
             return '<span>' + T("ss_submpp", { n: i + 3 }) + ' <b>' + fmt(t.vCellsMpp[i + 2], 3) + ' V</b></span>';
           }).join("");
+        var lnote = $("loss-note");
+        if (lnote){
+          if (t.vocIdeal !== undefined && (state.vLossMv > 0 || state.rLossPct > 0)){
+            lnote.style.display = "block";
+            lnote.innerHTML = "<strong>" + T("loss_applied", { v: fmt(state.vLossMv, 0), r: fmt(state.rLossPct, 1), voc: fmt(t.vocIdeal, 3), jsc: fmt(t.jscIdeal, 2), eff: fmt(t.effIdeal, 2) }) + "</strong>";
+          } else lnote.style.display = "none";
+        }
         var note = $("limit-note");
         var cellsAll = allCells();
         var limEntry = null, maxOther = 0;
@@ -3553,6 +3639,7 @@
         var s = "Tandem result computed with Tandem I-V Combiner v" + TOOL_VERSION + " (" + todayText() + "), Pin = " +
           fmt(state.pin, 0) + " mW/cm², " + spectrumTopExport() + " and " + spectrumBottomExport() + " (spectrum as stated by the user)";
         if (state.specFactor !== 1) s += ", with a spectral correction factor of " + state.specFactor.toFixed(2) + " applied to the bottom-cell current";
+        if (state.vLossMv > 0 || state.rLossPct > 0) s += ", with user-entered loss estimates applied (interfacial voltage loss " + fmt(state.vLossMv, 0) + " mV subtracted from the combined Voc, optical reflection loss " + fmt(state.rLossPct, 1) + " % subtracted from the Jsc)";
         var uc = unitConversionLines();
         if (uc.length) s += "; " + uc.map(function(u){ return u.text; }).join("; ");
         s += ": Voc = " + fmt(t.voc, 3) + " V, Jsc = " + fmt(t.jsc, 2) + " mA/cm², FF = " + fmt(t.ff, 2) +
@@ -3567,6 +3654,7 @@
           "# Pin: " + fmt(state.pin, 0) + " mW/cm2",
           "# Spectrum (as stated by the user): " + spectrumTopExport() + "; " + spectrumBottomExport(),
           "# Spectral correction factor (bottom cell): " + state.specFactor.toFixed(2),
+          "# Loss estimates (user-entered): interfacial voltage loss " + fmt(state.vLossMv, 0) + " mV, optical reflection loss " + fmt(state.rLossPct, 1) + " %",
           "# Top cell input: " + srcDesc(state.top && state.top.src),
           "# Bottom cell input: " + srcDesc(state.bottom && state.bottom.src),
           "# Result: Voc " + fmt(t.voc, 3) + " V, Jsc " + fmt(t.jsc, 2) + " mA/cm2, FF " + fmt(t.ff, 2) + " %, efficiency " + fmt(t.eff, 2) + " %, Pmax " + fmt(t.pmax, 2) + " mW/cm2 at Vmpp " + fmt(t.vmpp, 3) + " V",
@@ -3650,6 +3738,7 @@
         renderExtraTitles();
         $("pin").value = "100"; state.pin = 100; updatePinWarn();
         $("spec-factor").value = "1"; state.specFactor = 1; updateSpecWarn();
+        $("loss-v").value = "0"; $("loss-r").value = "0"; state.vLossMv = 0; state.rLossPct = 0;
         $("spec-top").value = "am15"; state.spectrumTop = "am15";
         $("spec-bottom").value = "filtered"; state.spectrumBottom = "filtered";
         renderSpecNote();
@@ -3913,18 +4002,101 @@
         rows.forEach(function(r){ out.push(r.join("\t")); });
         return out.join("\n");
       }
-      function wordTableHtml(){
-        var rows = pubRows(); if (!rows) return "";
-        var s = "<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:word\">" +
-          "<head><meta charset=\"utf-8\"><title>Tandem result table</title></head><body>" +
-          "<p>Tandem solar cell performance — Tandem I-V Combiner v" + TOOL_VERSION + ", " + todayText() +
-          ", Pin = " + fmt(state.pin, 0) + " mW/cm², two-terminal series combination.</p>" +
-          "<table border=\"1\" cellspacing=\"0\" cellpadding=\"6\"><tr>" +
-          PUB_HEAD_PLAIN.map(function(h){ return "<th>" + escHtml(h) + "</th>"; }).join("") + "</tr>";
-        rows.forEach(function(r, i){
-          s += "<tr>" + r.map(function(c){ return i === rows.length - 1 ? "<td><b>" + escHtml(c) + "</b></td>" : "<td>" + escHtml(c) + "</td>"; }).join("") + "</tr>";
+      /* ---------- real .docx export (v2.5) ----------
+         A .docx is a ZIP of OOXML parts. Built here with stored
+         (uncompressed) entries and a hand-rolled CRC32, so the file is a
+         genuine Word document that opens in modern Word with no
+         compatibility warning — no library needed. */
+      function xmlEsc(s){
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      var CRC_TABLE = null;
+      function crc32(bytes){
+        if (!CRC_TABLE){
+          CRC_TABLE = [];
+          for (var n = 0; n < 256; n++){
+            var c = n;
+            for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            CRC_TABLE[n] = c >>> 0;
+          }
+        }
+        var crc = 0xFFFFFFFF;
+        for (var i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+        return (crc ^ 0xFFFFFFFF) >>> 0;
+      }
+      function zipStore(files){
+        var enc = new TextEncoder(), chunks = [], central = [], offset = 0;
+        var now = new Date();
+        var dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+        var dosDate = (((Math.max(1980, now.getFullYear()) - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+        function u16(v){ return [v & 0xFF, (v >>> 8) & 0xFF]; }
+        function u32(v){ return [v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF]; }
+        files.forEach(function(f){
+          var name = enc.encode(f.name), data = typeof f.data === "string" ? enc.encode(f.data) : f.data;
+          var crc = crc32(data);
+          var local = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+            u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0));
+          chunks.push(new Uint8Array(local), name, data);
+          central.push({ name: name, crc: crc, size: data.length, offset: offset });
+          offset += local.length + name.length + data.length;
         });
-        return s + "</table></body></html>";
+        var cdStart = offset, cdSize = 0;
+        central.forEach(function(c){
+          var rec = [].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+            u32(c.crc), u32(c.size), u32(c.size), u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.offset));
+          chunks.push(new Uint8Array(rec), c.name);
+          cdSize += rec.length + c.name.length;
+        });
+        var end = [].concat(u32(0x06054b50), u16(0), u16(0), u16(central.length), u16(central.length), u32(cdSize), u32(cdStart), u16(0));
+        chunks.push(new Uint8Array(end));
+        return new Blob(chunks, { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      }
+      function docxCell(text, bold, shade){
+        return "<w:tc><w:tcPr><w:tcW w:w=\"0\" w:type=\"auto\"/>" +
+          (shade ? "<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"" + shade + "\"/>" : "") +
+          "<w:tcMar><w:top w:w=\"60\" w:type=\"dxa\"/><w:bottom w:w=\"60\" w:type=\"dxa\"/><w:left w:w=\"110\" w:type=\"dxa\"/><w:right w:w=\"110\" w:type=\"dxa\"/></w:tcMar></w:tcPr>" +
+          "<w:p><w:r><w:rPr>" + (bold ? "<w:b/>" : "") + "<w:sz w:val=\"20\"/></w:rPr><w:t xml:space=\"preserve\">" + xmlEsc(text) + "</w:t></w:r></w:p></w:tc>";
+      }
+      function buildDocx(){
+        var rows = pubRows(); if (!rows) return null;
+        var title = "Tandem solar cell performance — Tandem I-V Combiner v" + TOOL_VERSION + ", " + todayText() +
+          ", Pin = " + fmt(state.pin, 0) + " mW/cm², two-terminal series combination.";
+        if (state.vLossMv > 0 || state.rLossPct > 0)
+          title += " Loss estimates applied (user-entered): interfacial voltage loss " + fmt(state.vLossMv, 0) +
+            " mV, optical reflection loss " + fmt(state.rLossPct, 1) + " %.";
+        var borders = "<w:tblBorders>" +
+          ["top", "left", "bottom", "right", "insideH", "insideV"].map(function(b){
+            return "<w:" + b + " w:val=\"single\" w:sz=\"6\" w:space=\"0\" w:color=\"9AA79F\"/>";
+          }).join("") + "</w:tblBorders>";
+        var tbl = "<w:tbl><w:tblPr><w:tblW w:w=\"0\" w:type=\"auto\"/>" + borders + "</w:tblPr>";
+        tbl += "<w:tr>" + PUB_HEAD_PLAIN.map(function(h){ return docxCell(h, true, "E2F2EC"); }).join("") + "</w:tr>";
+        rows.forEach(function(r, i){
+          var last = i === rows.length - 1;
+          tbl += "<w:tr>" + r.map(function(c){ return docxCell(c, last, last ? "E2F2EC" : null); }).join("") + "</w:tr>";
+        });
+        tbl += "</w:tbl>";
+        var doc = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\">" +
+          "<w:body>" +
+          "<w:p><w:r><w:rPr><w:b/><w:sz w:val=\"22\"/></w:rPr><w:t xml:space=\"preserve\">" + xmlEsc(title) + "</w:t></w:r></w:p>" +
+          tbl +
+          "<w:sectPr><w:pgSz w:w=\"11906\" w:h=\"16838\"/><w:pgMar w:top=\"1134\" w:right=\"1134\" w:bottom=\"1134\" w:left=\"1134\"/></w:sectPr>" +
+          "</w:body></w:document>";
+        var ct = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">" +
+          "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>" +
+          "<Default Extension=\"xml\" ContentType=\"application/xml\"/>" +
+          "<Override PartName=\"/word/document.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml\"/>" +
+          "</Types>";
+        var rels = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+          "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">" +
+          "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"word/document.xml\"/>" +
+          "</Relationships>";
+        return zipStore([
+          { name: "[Content_Types].xml", data: ct },
+          { name: "_rels/.rels", data: rels },
+          { name: "word/document.xml", data: doc }
+        ]);
       }
       $("v24-latex-copy").addEventListener("click", function(){
         var s = latexTable(); if (!s){ toast(T("proj_need")); return; }
@@ -3940,8 +4112,8 @@
         copyText(s, "toast_tsv");
       });
       $("v24-word-dl").addEventListener("click", function(){
-        var s = wordTableHtml(); if (!s){ toast(T("proj_need")); return; }
-        downloadBlob("tandem-table.doc", new Blob(["\ufeff" + s], { type: "application/msword" }));
+        var blob = buildDocx(); if (!blob){ toast(T("proj_need")); return; }
+        downloadBlob("tandem-table.docx", blob);
         toast(T("toast_word"));
       });
       $("v24-latex-prev").addEventListener("click", function(){
@@ -4030,7 +4202,7 @@
         var st = $("v24-batch-status");
         st.className = "status";
         if (!tf.length || !bf.length){ st.textContent = T("batch_none"); st.classList.add("err"); return; }
-        if (tf.length + bf.length > 20){ st.textContent = T("batch_many", { n: tf.length + bf.length }); st.classList.add("err"); return; }
+        if (tf.length + bf.length > 50){ st.textContent = T("batch_many", { n: tf.length + bf.length }); st.classList.add("err"); return; }
         var btn = $("v24-batch-btn"); btn.disabled = true;
         readFilesText(tf, function(tops){
           readFilesText(bf, function(bots){
@@ -4180,6 +4352,7 @@
       function entryFromCurrent(name){
         var t = state.tandem; if (!t || !state.shown) return null;
         return { name: name || ("Result — " + todayText()), date: todayText(), pin: state.pin,
+          losses: { vMv: state.vLossMv, rPct: state.rLossPct },
           top: metricOf(state.top), bottom: metricOf(state.bottom),
           extras: state.extras.filter(function(x){ return !!x.data; }).map(function(x){ return metricOf(x.data); }),
           tandem: { voc: t.voc, jsc: t.jsc, ff: t.ff, eff: t.eff, pmax: t.pmax, vmpp: t.vmpp, jmpp: t.jmpp } };
@@ -4288,6 +4461,41 @@
         var e = decodeEntry(m ? m[1] : raw);
         if (!e){ toast(T("imp_err")); return; }
         showSharedEntry(e);
+      });
+      /* ---------- v2.5: project backup — export / import all ---------- */
+      $("v24-backup-export").addEventListener("click", function(){
+        var items = projLoad();
+        var st = $("v24-proj-status"); st.className = "status";
+        if (!items.length){ st.textContent = T("backup_none"); st.classList.add("err"); return; }
+        var payload = { app: "tandem-iv-combiner", kind: "projects-backup", version: TOOL_VERSION,
+          exported: todayText(), projects: items };
+        downloadBlob("tandem-projects-backup.json", new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+        toast(T("backup_exported", { n: items.length }));
+      });
+      $("v24-backup-import-btn").addEventListener("click", function(){ $("v24-backup-file").click(); });
+      $("v24-backup-file").addEventListener("change", function(ev){
+        var f = ev.target.files && ev.target.files[0];
+        ev.target.value = "";
+        if (!f) return;
+        var st = $("v24-proj-status"); st.className = "status";
+        var reader = new FileReader();
+        reader.onload = function(){
+          var list = null;
+          try {
+            var parsed = JSON.parse(String(reader.result || ""));
+            list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.projects) ? parsed.projects : null);
+          } catch(e){ list = null; }
+          if (list) list = list.filter(function(e){ return e && e.tandem && isFinite(e.tandem.eff); });
+          if (!list || !list.length){ st.textContent = T("backup_err"); st.classList.add("err"); return; }
+          projMem = list.slice(0, 200);
+          projSaveAll(); renderProjects();
+          $("v24-proj-detail").classList.remove("show");
+          st.textContent = T("backup_imported", { n: projMem.length });
+          st.classList.add("ok");
+          toast(T("backup_imported", { n: projMem.length }));
+        };
+        reader.onerror = function(){ st.textContent = T("backup_err"); st.classList.add("err"); };
+        reader.readAsText(f);
       });
       renderProjects();
       $("lang-select").addEventListener("change", function(){
