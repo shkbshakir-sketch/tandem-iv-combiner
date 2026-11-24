@@ -3765,11 +3765,37 @@
         img.onerror = function(){ URL.revokeObjectURL(url); toast(T("toast_copyfail")); };
         img.src = url;
       });
-      // the sample files are real files served with the page, linked straight
-      // from the buttons — a blob made on the spot did not download everywhere
-      ["dl-sample-iv", "dl-sample-csv", "help-dl-top", "help-dl-bottom"].forEach(function(id){
-        var el = $(id);
-        if (el) el.addEventListener("click", function(){ toast(T("toast_sample")); });
+      // sample files: I build the content here in the page and save it with
+      // downloadBlob, the same way as the result csv. a plain link to a file
+      // in the assets folder only works while that folder sits next to this
+      // page — from a lone copy of this file the link came down empty, so
+      // the samples now travel inside the page itself. the rows come from
+      // exampleCurve, the same numbers as the built-in examples, so a sample
+      // downloaded here loads back in and gives the same result as before.
+      function sampleCsvText(cell){
+        var txt = cell === "top" ? exampleCurve(1.26, 21.0, 0.055) : exampleCurve(0.72, 19.8, 0.032);
+        return "Voltage (V),Current density (mA/cm2)\n" + txt.replace(/\t/g, ",") + "\n";
+      }
+      function sampleIvText(){
+        return "SCAPS-1D I-V curve — sample file (Tandem I-V Combiner)\n" +
+          "Two numeric columns: voltage (V), current density (mA/cm2).\n" +
+          "Header lines like these are skipped automatically.\n\n" +
+          "V (V)\tJ (mA/cm2)\n" + exampleCurve(1.26, 21.0, 0.055) + "\n";
+      }
+      var sampleDownloads = {
+        "dl-sample-iv": { name: "sample-scaps-top-cell.iv", type: "text/plain", text: sampleIvText },
+        "dl-sample-csv": { name: "iv-curve-template.csv", type: "text/csv", text: function(){ return sampleCsvText("bottom"); } },
+        "help-dl-top": { name: "sample-top-cell.csv", type: "text/csv", text: function(){ return sampleCsvText("top"); } },
+        "help-dl-bottom": { name: "sample-bottom-cell-filtered.csv", type: "text/csv", text: function(){ return sampleCsvText("bottom"); } }
+      };
+      Object.keys(sampleDownloads).forEach(function(id){
+        var el = $(id); if (!el) return;
+        el.addEventListener("click", function(ev){
+          ev.preventDefault();
+          var s = sampleDownloads[id];
+          downloadBlob(s.name, new Blob([s.text()], { type: s.type }));
+          toast(T("toast_sample"));
+        });
       });
       $("reset-all").addEventListener("click", function(){
         ["top", "bottom"].forEach(function(cell){
