@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shkbshakir-sketch.github.io/tandem-iv-combiner/sitemap.xml
